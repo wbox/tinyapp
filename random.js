@@ -27,4 +27,4 @@ function generateRandomString(length) {
   return shortURLKey;
 };
 
-console.log(generateRandomString());
+console.log(generateRandomString(10));
