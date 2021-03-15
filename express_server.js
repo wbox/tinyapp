@@ -32,7 +32,6 @@ function generateRandomString(length) {
     let num = Math.floor(Math.random() * (max - min + 1) + min); // Example code from Math.random() MDN Documentation.
     shortURLKey += String.fromCharCode(num);
   }
-
   return shortURLKey;
 };
 
@@ -43,8 +42,19 @@ app.use(bodyParser.urlencoded({extended: true}));
 
 // POST Routing
 app.post("/urls", (req, res) => {
-  console.log(req.body);
-  res.send("Ok");
+
+  shortURLKey = generateRandomString();
+  urlDatabase[shortURLKey] = req.body.longURL;
+  res.redirect('/urls');
+
+});
+
+app.get("/u/:shortURL", (req, res) => {
+  if (!urlDatabase[req.params.shortURL]) {
+      res.redirect('/urls');
+  } else {
+    res.redirect(urlDatabase[req.params.shortURL]);
+  }
 });
 
 app.get("/", (req, res) => {
