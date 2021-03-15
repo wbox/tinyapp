@@ -17,7 +17,9 @@
     "url": "https://github.com/wbox/tinyapp/issues"
   },
   "homepage": "https://github.com/wbox/tinyapp#readme",
-  "dependencies": {
+  "dependencies": {},
+  "devDependencies": {
+    "ejs": "^3.1.6",
     "express": "^4.17.1"
   }
 }
