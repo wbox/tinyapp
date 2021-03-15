@@ -6,7 +6,7 @@ NODE_PID=`pidof node`
    kill -9 $NODE_PID
  fi
 
-nohup node express_server.js &
+node express_server.js &
 
 
 
