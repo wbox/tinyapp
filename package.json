@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/wbox/tinyapp/issues"
   },
-  "homepage": "https://github.com/wbox/tinyapp#readme"
+  "homepage": "https://github.com/wbox/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
