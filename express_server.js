@@ -38,6 +38,16 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 
 // POST Routing
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+
+  // console.log("---->",req.params.shortURL);
+  // res.send(req.params.shortURL);
+
+  delete urlDatabase[req.params.shortURL];
+  res.redirect('/urls');
+});
+
 app.post("/urls", (req, res) => {
 
   shortURLKey = generateRandomString();
@@ -48,7 +58,7 @@ app.post("/urls", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
-      res.redirect('/urls');
+    res.redirect('/urls');
   } else {
     res.redirect(urlDatabase[req.params.shortURL]);
   }
