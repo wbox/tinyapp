@@ -40,21 +40,26 @@ app.use(bodyParser.urlencoded({extended: true}));
 // POST Routing
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-
-  // console.log("---->",req.params.shortURL);
-  // res.send(req.params.shortURL);
-
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
 
-app.post("/urls", (req, res) => {
+app.post("/urls/:shortURL/edit", (req, res) => {
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  res.render("urls_show", templateVars);
+});
 
+app.post("/urls/:id", (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls");
+});
+
+app.post("/urls", (req, res) => {
   shortURLKey = generateRandomString();
   urlDatabase[shortURLKey] = req.body.longURL;
   res.redirect('/urls');
-
 });
+
 
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
