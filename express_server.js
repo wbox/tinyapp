@@ -1,36 +1,20 @@
 const express = require("express");
 const bodyParser = require('body-parser');
+const md5 = require('md5');
 const ejs = require('ejs');
 const app = express();
 const PORT = 8080; // default port 8080
 
+// My plan is to store this in a file when I get all functionalities
+// for this app implemented.
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-function generateRandomString(length) {
-  let min = 0;
-  let max = 0;
-  let shortURLKey = "";
- 
+function generateRandomString(url, length) {
   length = !length ? 6 : length;
-  
-  for ( let i = 0; i < length; i++) {
-    let range = Math.random();
-    if (range <= 0.3 ) {
-      min = 48;
-      max = 57;
-    } else if (range <= 0.6) {
-      min = 65;
-      max = 90;
-    } else {
-      min = 97;
-      max = 122;
-    }
-    let num = Math.floor(Math.random() * (max - min + 1) + min); // Example code from Math.random() MDN Documentation.
-    shortURLKey += String.fromCharCode(num);
-  }
+  const shortURLKey = md5(url).slice(0,length);
   return shortURLKey;
 };
 
@@ -55,7 +39,7 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  shortURLKey = generateRandomString();
+  shortURLKey = generateRandomString(req.body.longURL);
   urlDatabase[shortURLKey] = req.body.longURL;
   res.redirect('/urls');
 });
