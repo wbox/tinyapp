@@ -13,8 +13,7 @@ function generateRandomString(length) {
   let min = 0;
   let max = 0;
   let shortURLKey = "";
-
-  
+ 
   length = !length ? 6 : length;
   
   for ( let i = 0; i < length; i++) {
@@ -34,8 +33,6 @@ function generateRandomString(length) {
   }
   return shortURLKey;
 };
-
-
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
