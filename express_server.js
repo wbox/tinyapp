@@ -23,8 +23,7 @@ app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 
-// POST Routing
-
+// POST Routing Entries
 app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
@@ -46,6 +45,17 @@ app.post("/urls", (req, res) => {
   res.redirect('/urls');
 });
 
+app.post("/login", (req, res) => {
+  //const cookieTemplate = { username: req.cookie["username"] };
+  console.log(req.body);
+  res.cookie('username', req.body.username);
+  // console.log("req body--->", req.body);
+  // console.log("req params->", req.params);
+  console.log("Cookie----->", req.cookies["username"]);
+  res.send("Login page not implemented yet. Click <a href=\"/urls\">here</a> to return to the main page.");
+  //templateVars.username = req.cookies["username"];
+  //res.render('urls_index.ejs', templateVars);
+})
 
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
@@ -56,7 +66,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.redirect('/urls');
 });
 
 app.get("/urls.json", (req, res) => {
@@ -64,7 +74,9 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  console.log(req.cookies.username);
+  // const userId = req.session['username'];
+  const templateVars = { urls: urlDatabase, username: req.cookies.username };
   res.render('urls_index.ejs', templateVars);
 });
 
