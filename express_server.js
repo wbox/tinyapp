@@ -13,9 +13,9 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-function generateRandomString(url, length) {
+function generateRandomString(text, length) {
   length = !length ? 6 : length;
-  const shortURLKey = md5(url).slice(0,length);
+  const shortURLKey = md5(text).slice(0,length);
   return shortURLKey;
 };
 
@@ -30,8 +30,8 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  console.log("Edit body:", req.body);
-  console.log("Edit params:", req.params);
+  // console.log("Edit body:", req.body);
+  // console.log("Edit params:", req.params);
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username};
   res.render("urls_show", templateVars);
 });
