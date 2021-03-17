@@ -53,7 +53,7 @@ app.post("/login", (req, res) => {
   //res.send("Login page not implemented yet. Click <a href=\"/urls\">here</a> to return to the main page.");
 });
 
-app.post("/delete", (req, res) => {
+app.post("/logout", (req, res) => {
   res.clearCookie(username);
   res.redirect("/urls");
 })
