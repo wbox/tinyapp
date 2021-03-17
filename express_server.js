@@ -30,7 +30,9 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  console.log("Edit body:", req.body);
+  console.log("Edit params:", req.params);
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username};
   res.render("urls_show", templateVars);
 });
 
@@ -46,15 +48,14 @@ app.post("/urls", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  //const cookieTemplate = { username: req.cookie["username"] };
-  console.log(req.body);
   res.cookie('username', req.body.username);
-  // console.log("req body--->", req.body);
-  // console.log("req params->", req.params);
-  console.log("Cookie----->", req.cookies["username"]);
-  res.send("Login page not implemented yet. Click <a href=\"/urls\">here</a> to return to the main page.");
-  //templateVars.username = req.cookies["username"];
-  //res.render('urls_index.ejs', templateVars);
+  res.redirect("/urls");
+  //res.send("Login page not implemented yet. Click <a href=\"/urls\">here</a> to return to the main page.");
+});
+
+app.post("/delete", (req, res) => {
+  res.clearCookie(username);
+  res.redirect("/urls");
 })
 
 app.get("/u/:shortURL", (req, res) => {
@@ -74,14 +75,14 @@ app.get("/urls.json", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  console.log(req.cookies.username);
-  // const userId = req.session['username'];
+  //console.log(req.cookies.username);
   const templateVars = { urls: urlDatabase, username: req.cookies.username };
   res.render('urls_index.ejs', templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  templateVars = { username: req.cookies.username };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
