@@ -13,6 +13,16 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const userDB = [
+  { "samrib" : 
+    {
+      id: "samrib",
+      email: "sam@ribas.ca",
+      password: "sam"
+    }
+  }
+];
+
 function generateRandomString(text, length) {
   length = !length ? 6 : length;
   const shortURLKey = md5(text).slice(0,length);
@@ -56,7 +66,25 @@ app.post("/login", (req, res) => {
 app.post("/logout", (req, res) => {
   res.clearCookie('username');
   res.redirect("/urls");
+});
+
+app.post("/register", (req, res) => {
+  templateVars = req.body;
+  // check if email was informed
+  if (templateVars.email) {
+    // check if the user already exist
+    // if true 
+      // return message inform user already exist
+    // if false
+      // add new user to the database
+    
+  }
 })
+
+app.get("/register", (req, res) => {
+  console.log("Cookies /register", req.cookies);
+  res.render("urls_register", req.cookies);
+});
 
 app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
@@ -67,7 +95,13 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.redirect('/urls');
+  console.log("cookies at /", req.cookies);
+  username = req.cookies;
+  if (username) {
+    res.redirect('/urls');
+  } else {
+    res.render("urls_register");
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -76,8 +110,14 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
   //console.log(req.cookies.username);
+  //console.log("cookies at /", req.cookies);
   const templateVars = { urls: urlDatabase, username: req.cookies.username };
-  res.render('urls_index.ejs', templateVars);
+  if (templateVars.username) {
+    res.render('urls_index.ejs', templateVars);
+  } else {
+    res.render("urls_register");
+  }
+
 });
 
 app.get("/urls/new", (req, res) => {
