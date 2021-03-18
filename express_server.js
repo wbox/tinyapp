@@ -72,10 +72,16 @@ const generateRandomString = (text, length) => {
 
 function findUserById(id, users) {
     const userDB = Object.values(users).find(userObject => userObject.id === id);
+
+    console.log("--->userDB inside findUserById:", userDB);
+    console.log("--->id inside findUserById:", id);
+    console.log("--->users inside findUserById:", users);
+
     if (userDB) {
       return { userDB, error: null };
     } else {
-      const user = null;
+      // const user = null;
+      const userDB = null;
       return { userDB, error: "User ID doesn't exist"}
     }
 
@@ -314,7 +320,10 @@ app.get("/urls/new", (req, res) => {
     templateVars = { userDB: null, error: "User not logged"}
     res.render("urls_login", templateVars);
   } else {
-    const userDB = findUserById(userSessionID, users);
+    const { userDB, error } = findUserById(userSessionID, users);
+
+    console.log(">>>>>>>userDB inside /urls/new:", userDB);
+    console.log(">>>>>>>userDB['email'] inside /urls/new:", userDB['email']);
     templateVars = { userDB, error: null };
     res.render("urls_new", templateVars);
   }
