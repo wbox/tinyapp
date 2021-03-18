@@ -173,7 +173,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
-  urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.cookies.user_id };
+  urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.session.user_id };
   console.log(urlDatabase);
   res.redirect('/urls');
 });
@@ -309,12 +309,12 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  userID = req.cookies.user_id;
-  if (!userID) {
+  userSessionID = req.session.user_id;
+  if (!userSessionID) {
     templateVars = { userDB: null, error: "User not logged"}
     res.render("urls_login", templateVars);
   } else {
-    const userDB = findUserById(userID, users);
+    const userDB = findUserById(userSessionID, users);
     templateVars = { userDB, error: null };
     res.render("urls_new", templateVars);
   }
