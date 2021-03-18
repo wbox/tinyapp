@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail, findUserById, findUserByEmail } = require('../helpers.js');
+const { getUserByEmail, findUserById, findUserByEmail, addNewUser } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -69,6 +69,26 @@ describe('findUserByEmail', () => {
   });
     
 });
+
+// const addNewUser = (id, email, password, users) => {
+//   password = bcrypt.hashSync(password, SALT_ROUND);
+//   users[id] = { id, email, password };
+//   const userDB = users[id];
+//   return { userDB , error: null };
+// };
+
+describe('addNewUser', () => {
+  
+  it('should return an object of the new user', () => {
+    const user = addNewUser("34erd9", "xxxx@example.com", "password!1234", testUsers);
+    // const userDB = { id: "34erd9", email: "xxxx@example.com", password: testUsers["34erd9"].password };
+    const userDB = testUsers["34erd9"];
+    const expectedOutput = { userDB, error: null };
+    assert.deepEqual(user, expectedOutput);
+  });
+    
+});
+
 
 
 // console.log(getUserByEmail("bla@example.com", testUsers));
