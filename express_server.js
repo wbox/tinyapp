@@ -231,7 +231,10 @@ app.post("/register", (req, res) => {
       password = bcrypt.hashSync(req.body.password, SALT_ROUND);
       users[id] = { id, email, password };
       // ---
-      res.cookie('user_id', id);
+      //res.cookie('user_id', id);
+
+      req.session['user_id'] = id;
+
       const userUrlObj = getUserUrls(id,urlDatabase);
       const templateVars = { urlDB: userUrlObj, userDB : users[id] };
       res.render("urls_index", templateVars);
@@ -245,9 +248,9 @@ app.get("/login", (req, res) => {
 
 app.get("/register", (req, res) => {
 
-  const userID = req.cookies.user_id;
+  const userSessionID = req.session.user_id;
   // Find if user exists
-  const { userDB, error } = findUserById(userID, users);
+  const { userDB, error } = findUserById(userSessionID, users);
   if (userDB) {
     const userUrlObj = getUserUrls(userDB.id, urlDatabase);
     const templateVars = { urlDB: userUrlObj, userDB };
