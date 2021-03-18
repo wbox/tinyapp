@@ -109,32 +109,11 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-
-  console.log("user_id inside POST /urls/shor/edit:", req.cookies.user_id);
-
   const { userDB, error } = findUserById(req.cookies.user_id, users);
-  console.log("userDB inside post edit:", userDB);
-
-  //const urlDB = Object.values(urlDatabase).find(urlOBJ => urlOBJ.shortURL === req.params.shortURL);
-  //console.log("urlDB inside edit:", urlDB);
-
   if (userDB) {
     const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], userDB };
     res.render("urls_show", templateVars);
-
-  //   if (urlDB) {
-  //     const templateVars = { urlDB, userDB };
-
-  //     console.log("templateVars inside post edit:", templateVars);
-
-  //     res.render("urls_show", templateVars);
-  //   }
-  // } else {
-  //   console.log("----> Can't find userDB inside app.post edit")
   }
-
-
-
 });
 
 
