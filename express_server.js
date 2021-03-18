@@ -136,13 +136,17 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 app.post("/urls/:shortURL/edit", (req, res) => {
   const { userDB, error } = findUserById(req.cookies.user_id, users);
   if (userDB) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], userDB };
+
+    console.log("req.params inside edit:",req.params);
+    console.log("urlDatabase:",urlDatabase);
+
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
     res.render("urls_show", templateVars);
   }
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.cookies.user_id };
   res.redirect("/urls");
 });
 
@@ -169,7 +173,6 @@ app.post("/login", (req, res) => {
     } else {
       res.cookie('user_id', userFromDb.id);
 
-      // Add function that gets user specific urls
       const userUrlObj = getUserUrls(userFromDb.id, urlDatabase);
       templateVars = { urlDB: userUrlObj, userDB: userFromDb };
       res.render("urls_index", templateVars);
