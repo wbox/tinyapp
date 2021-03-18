@@ -5,6 +5,8 @@ const ejs = require('ejs');
 const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
+const { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls } = require('./helpers');
+
 const app = express();
 
 app.set('view engine', 'ejs');
@@ -16,8 +18,9 @@ app.use(
     name: 'session',
     keys: ['key1', 'key2']
     })
-  );
+);
 
+// Middleware functions
 const setCurrentUser = (req, res, next) => {
 
   const userID = req.session['user_id'];
@@ -45,7 +48,6 @@ const urlDatabase = {
   i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
 };
 
-
 const users = { 
   "userRandomID": {
     id: "userRandomID", 
@@ -64,95 +66,99 @@ const users = {
   }
 };
 
-const generateRandomString = (text, length) => {
-  length = !length ? 6 : length;
-  const randomString = md5(text).slice(0,length);
-  return randomString;
-};
+// /// Helper Functions
+// const generateRandomString = (text, length) => {
+//   length = !length ? 6 : length;
+//   const randomString = md5(text).slice(0,length);
+//   return randomString;
+// };
 
-function findUserById(id, users) {
-    const userDB = Object.values(users).find(userObject => userObject.id === id);
+// const findUserById = (id, users) => {
+//     const userDB = Object.values(users).find(userObject => userObject.id === id);
 
-    console.log("--->userDB inside findUserById:", userDB);
-    console.log("--->id inside findUserById:", id);
-    console.log("--->users inside findUserById:", users);
+//     console.log("--->userDB inside findUserById:", userDB);
+//     console.log("--->id inside findUserById:", id);
+//     console.log("--->users inside findUserById:", users);
 
-    if (userDB) {
-      return { userDB, error: null };
-    } else {
-      // const user = null;
-      const userDB = null;
-      return { userDB, error: "User ID doesn't exist"}
-    }
+//     if (userDB) {
+//       return { userDB, error: null };
+//     } else {
+//       // const user = null;
+//       const userDB = null;
+//       return { userDB, error: "User ID doesn't exist"}
+//     }
 
-};
+// };
 
-function findUserByEmail(email, userDB) {
-  const user = Object.values(userDB).find((userObject) => userObject.email === email);
-  if (user) {
-    return { user, error: null };
-  } else {
-    const user = null;
-    return { user, error: "User email doesn't exist"}
-  }
-};
+// const findUserByEmail = (email, userDB) => {
+//   const user = Object.values(userDB).find((userObject) => userObject.email === email);
+//   if (user) {
+//     return { user, error: null };
+//   } else {
+//     const user = null;
+//     return { user, error: "User email doesn't exist"}
+//   }
+// };
 
-function addNewUser(email, password, userDB) {
-  // const hash = bcrypt.hashSync(myPlaintextPassword, saltRounds);
-};
+// function addNewUser(id, email, password, users) {
+//   password = bcrypt.hashSync(password, SALT_ROUND);
+//   users[id] = { id, email, password };
+//   const userDB = users[id];
+//   return { userDB , error: null };
+// };
 
-function validateUser(email, password, users) {
-  userDB = null;
-  if (!email) {
-    return { userDB , error: "email empty" };
-  } else if (!password) {
-    return { userDB, error: "password empty" };
-  } else if (!users) {
-    return { userDB, error: "database empty"} ;
-  };
+// const validateUser = (email, password, users) => {
+//   userDB = null;
+//   if (!email) {
+//     return { userDB , error: "email empty" };
+//   } else if (!password) {
+//     return { userDB, error: "password empty" };
+//   } else if (!users) {
+//     return { userDB, error: "database empty"} ;
+//   };
 
-  userDB = Object.values(users).find(objectUser => objectUser.email === email);
+//   userDB = Object.values(users).find(objectUser => objectUser.email === email);
   
-  console.log("---->userDB inside login:", userDB);
+//   console.log("---->userDB inside login:", userDB);
 
-  if (!userDB) {
-    return { userDB , error: "User not found" };
-  } else { 
+//   if (!userDB) {
+//     return { userDB , error: "User not found" };
+//   } else { 
   
-    const hash = userDB.password;
+//     const hash = userDB.password;
     
-    console.log("hash inside validateUser Function:", hash);
-    console.log("compareSync:", bcrypt.compareSync(password, hash));
+//     console.log("hash inside validateUser Function:", hash);
+//     console.log("compareSync:", bcrypt.compareSync(password, hash));
 
-    if (userDB.email !== email) {
-      return { userDB, error: "email not found!" };
-    } else if (!bcrypt.compareSync(password, hash)) /* userFromDb.password !== password) */{
-      return { userDB, error: "wrong password" }; 
-    } 
-    return { userDB, error: null };
-  }
-};
+//     if (userDB.email !== email) {
+//       return { userDB, error: "email not found!" };
+//     } else if (!bcrypt.compareSync(password, hash)) /* userFromDb.password !== password) */{
+//       return { userDB, error: "wrong password" }; 
+//     } 
+//     return { userDB, error: null };
+//   }
+// };
 
-function getUserUrls(id, urlDatabase) {
-  const userUrlObj = {};
+// const getUserUrls = (id, urlDatabase) => {
+//   const userUrlObj = {};
 
-  console.log("---> urlDatabase:",urlDatabase)
+//   console.log("---> urlDatabase:",urlDatabase)
 
-  for (let url in urlDatabase) {
-    console.log("url in the loop:", url)
-    console.log("urlDatabase[url] in the loop:", urlDatabase[url]);
-    console.log("urlDatabase[url].userID in the loop:", urlDatabase[url].userID);
-    console.log("userDB.id in the loop:", id);
+//   for (let url in urlDatabase) {
+//     console.log("url in the loop:", url)
+//     console.log("urlDatabase[url] in the loop:", urlDatabase[url]);
+//     console.log("urlDatabase[url].userID in the loop:", urlDatabase[url].userID);
+//     console.log("userDB.id in the loop:", id);
 
-    if ( urlDatabase[url].userID == id) {
-      console.log("--->", url);
+//     if ( urlDatabase[url].userID == id) {
+//       console.log("--->", url);
       
-      userUrlObj[url] =  urlDatabase[url];
-    }
-  }
-  console.log(userUrlObj);
-  return userUrlObj || null;
-}
+//       userUrlObj[url] =  urlDatabase[url];
+//     }
+//   }
+//   console.log(userUrlObj);
+//   return userUrlObj || null;
+// }
 
 // POST Routing Entries
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -225,19 +231,24 @@ app.post("/logout", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
+
   const id = generateRandomString(req.body.email,USERID_LENGTH);
   email = req.body.email;
+  password = req.body.password;
   
   if (email) {
-    const { user, error } = findUserByEmail(email, users);
-    if (user) {
+    const { userDB, error } = findUserByEmail(email, users);
+    if (userDB) {
       res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
     } else {
       // Make this code a function addNewUser
-      password = bcrypt.hashSync(req.body.password, SALT_ROUND);
-      users[id] = { id, email, password };
-      // ---
-      //res.cookie('user_id', id);
+
+      const { userDB, error } = addNewUser(id, email, password, users);
+
+      // password = bcrypt.hashSync(req.body.password, SALT_ROUND);
+      // users[id] = { id, email, password };
+      // // ---
+      // //res.cookie('user_id', id);
 
       req.session['user_id'] = id;
 
@@ -248,6 +259,7 @@ app.post("/register", (req, res) => {
   }
 });
 
+// GET Routing Entries
 app.get("/login", (req, res) => {
   res.render("urls_login", { userDB: null});
 });
