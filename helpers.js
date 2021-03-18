@@ -1,7 +1,6 @@
-const md5 = require('md5');
-const bcrypt = require('bcrypt');
-
-const SALT_ROUND      = 10;
+const md5         = require('md5');
+const bcrypt      = require('bcrypt');
+const SALT_ROUND  = 10;
 
 /// Helper Functions
 const generateRandomString = (text, length) => {
@@ -12,19 +11,14 @@ const generateRandomString = (text, length) => {
 
 const findUserById = (id, users) => {
   const userDB = Object.values(users).find(userObject => userObject.id === id);
-
-  console.log("--->userDB inside findUserById:", userDB);
-  console.log("--->id inside findUserById:", id);
-  console.log("--->users inside findUserById:", users);
+  // return userDB ? { userDB, error: null } : { userDB: null, error: "User ID doesn't exist" };
 
   if (userDB) {
     return { userDB, error: null };
   } else {
-    // const user = null;
     const userDB = null;
     return { userDB, error: "User ID doesn't exist"};
   }
-
 };
 
 const findUserByEmail = (email, userDB) => {
@@ -37,6 +31,11 @@ const findUserByEmail = (email, userDB) => {
   }
 };
 
+const getUserByEmail = (email, userDB) => {
+  const user = Object.values(userDB).find((userObject) => userObject.email === email);
+  return user ? user.id : null;
+};
+
 const  addNewUser = (id, email, password, users) => {
   password = bcrypt.hashSync(password, SALT_ROUND);
   users[id] = { id, email, password };
@@ -45,6 +44,7 @@ const  addNewUser = (id, email, password, users) => {
 };
 
 const validateUser = (email, password, users) => {
+  
   userDB = null;
   if (!email) {
     return { userDB , error: "email empty" };
@@ -55,46 +55,29 @@ const validateUser = (email, password, users) => {
   }
 
   userDB = Object.values(users).find(objectUser => objectUser.email === email);
-  
-  console.log("---->userDB inside login:", userDB);
 
-  if (!userDB) {
-    return { userDB , error: "User not found" };
-  } else {
-  
+  if (userDB) {
     const hash = userDB.password;
     
-    console.log("hash inside validateUser Function:", hash);
-    console.log("compareSync:", bcrypt.compareSync(password, hash));
-
     if (userDB.email !== email) {
       return { userDB, error: "email not found!" };
-    } else if (!bcrypt.compareSync(password, hash)) /* userFromDb.password !== password) */{
+    } else if (!bcrypt.compareSync(password, hash)) {
       return { userDB, error: "wrong password" };
     }
     return { userDB, error: null };
+  } else {
+    return { userDB , error: "User not found" };
   }
 };
 
 const getUserUrls = (id, urlDatabase) => {
   const userUrlObj = {};
-
-  console.log("---> urlDatabase:",urlDatabase);
-
   for (let url in urlDatabase) {
-    console.log("url in the loop:", url);
-    console.log("urlDatabase[url] in the loop:", urlDatabase[url]);
-    console.log("urlDatabase[url].userID in the loop:", urlDatabase[url].userID);
-    console.log("userDB.id in the loop:", id);
-
     if (urlDatabase[url].userID === id) {
-      console.log("--->", url);
-      
       userUrlObj[url] =  urlDatabase[url];
     }
   }
-  console.log(userUrlObj);
   return userUrlObj || null;
 };
 
-module.exports = { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls };
+module.exports = { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls, getUserByEmail };
