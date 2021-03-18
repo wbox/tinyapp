@@ -9,8 +9,27 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
-//app.use(cookieSession)
+// app.use(cookieParser());
+
+app.use(
+  cookieSession({
+    name: 'session',
+    keys: ['key1', 'key2']
+    })
+  );
+
+const setCurrentUser = (req, res, next) => {
+
+  const userID = req.session['user_id'];
+  const userObj = users[userID] || null;
+  req.currentUser = userObj;
+
+  console.log("req.currentUser from setCurrentUser middleware function:",req.currentUser);
+  next();
+}
+
+app.use(setCurrentUser);
+
 
 const PORT = 8080; // default port 8080
 const PASSWORD_LENGTH = 15;
@@ -45,7 +64,7 @@ const users = {
   }
 };
 
-function generateRandomString(text, length) {
+const generateRandomString = (text, length) => {
   length = !length ? 6 : length;
   const randomString = md5(text).slice(0,length);
   return randomString;
@@ -76,33 +95,35 @@ function addNewUser(email, password, userDB) {
   // const hash = bcrypt.hashSync(myPlaintextPassword, saltRounds);
 };
 
-function validateUser(email, password, userDB) {
-  userObj = null;
+function validateUser(email, password, users) {
+  userDB = null;
   if (!email) {
-    return { userObj , error: "email empty" };
+    return { userDB , error: "email empty" };
   } else if (!password) {
-    return { userObj, error: "password empty" };
-  } else if (!userDB) {
-    return { userObj, error: "database empty"} ;
-  }
+    return { userDB, error: "password empty" };
+  } else if (!users) {
+    return { userDB, error: "database empty"} ;
+  };
 
-  userFromDb = Object.values(userDB).find(objectUser => objectUser.email === email);
+  userDB = Object.values(users).find(objectUser => objectUser.email === email);
   
-  if (!userFromDb) {
-    return { userObj , error: "User not found" };
+  console.log("---->userDB inside login:", userDB);
+
+  if (!userDB) {
+    return { userDB , error: "User not found" };
   } else { 
   
-    const hash = userFromDb.password;
+    const hash = userDB.password;
     
     console.log("hash inside validateUser Function:", hash);
     console.log("compareSync:", bcrypt.compareSync(password, hash));
 
-    if (userFromDb.email !== email) {
-      return { userObj, error: "email not found!" };
+    if (userDB.email !== email) {
+      return { userDB, error: "email not found!" };
     } else if (!bcrypt.compareSync(password, hash)) /* userFromDb.password !== password) */{
-      return { userObj, error: "wrong password" }; 
+      return { userDB, error: "wrong password" }; 
     } 
-    return { userFromDb, error: null };
+    return { userDB, error: null };
   }
 };
 
@@ -159,7 +180,7 @@ app.post("/urls", (req, res) => {
 
 app.post("/login", (req, res) => {
 
-  const emailForm = req.body.email;
+  const emailForm    = req.body.email;
   const passwordForm = req.body.password;
 
   if (!emailForm) {
@@ -167,14 +188,25 @@ app.post("/login", (req, res) => {
   } else if (!passwordForm) {
     res.status(400).render("urls_error", { userDB: null, error: "You need to inform password!" });
   } else {
-    const { userFromDb, error } = validateUser(emailForm, passwordForm, users);
-    if(!userFromDb) {
+    //const { userFromDb, error } = validateUser(emailForm, passwordForm, users);
+    const { userDB, error } = validateUser(emailForm, passwordForm, users);
+
+    console.log("--->userDB inside /login:", userDB);
+    console.log("--->userDB.id inside /login:", userDB.id);
+
+    if(!userDB) {
       res.status(403).render("urls_error", { userDB: null, error });
     } else {
-      res.cookie('user_id', userFromDb.id);
+      // Replacing but cookie-session
+      // res.cookie('user_id', userFromDb.id);
 
-      const userUrlObj = getUserUrls(userFromDb.id, urlDatabase);
-      templateVars = { urlDB: userUrlObj, userDB: userFromDb };
+      req.session['user_id'] = userDB.id;
+
+      console.log("--->req.session.user_id inside login:", req.session.user_id);
+
+      const userUrlObj = getUserUrls(userDB.id, urlDatabase);
+      //templateVars = { urlDB: userUrlObj, userDB: userFromDb };
+      templateVars = { urlDB: userUrlObj, userDB };
       res.render("urls_index", templateVars);
     }
   }
@@ -243,7 +275,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
 
-  const userID = req.cookies.user_id;
+  const userID = req.session.user_id;
   const { userDB, error } = findUserById(userID, users);
  
   if (!userID) {
