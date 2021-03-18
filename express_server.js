@@ -30,12 +30,11 @@ const setCurrentUser = (req, res, next) => {
 
 app.use(setCurrentUser);
 
-
 const PORT = 8080; // default port 8080
-const PASSWORD_LENGTH = 15;
+//const PASSWORD_LENGTH = 15;
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
-const SALT_ROUND      = 10;
+//const SALT_ROUND      = 10;
 
 
 // My plan is to store this in a file when I get all functionalities
