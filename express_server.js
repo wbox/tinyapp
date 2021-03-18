@@ -99,11 +99,10 @@ app.post("/login", (req, res) => {
   const emailForm = req.body.email;
   const passwordForm = req.body.password;
 
-  if (!emailForm || !passwordForm) {
-
-    res.status(400).send("You need to inform email and password!")
-  
-
+  if (!emailForm) {
+    res.status(400).render("urls_error", { userDB: null, error: `You need to inform email` });
+  } else if (!passwordForm) {
+    res.status(400).render("urls_error", { userDB: null, error: "You need to inform password!" });
   } else {
 
     const password = generateRandomString(passwordForm, PASSWORD_LENGTH);
@@ -116,7 +115,7 @@ app.post("/login", (req, res) => {
     } else {
       res.cookie('user_id', userFromDb.id);
       templateVars = { urlDB: urlDatabase, userDB: userFromDb };
-      res.render("urls_login", templateVars);
+      res.render("urls_index", templateVars);
     }
   }
 });
@@ -153,15 +152,20 @@ app.post("/register", (req, res) => {
   }
 })
 
+app.get("/login", (req, res) => {
+  res.render("urls_login", { userDB: null});
+});
+
 app.get("/register", (req, res) => {
 
+  const userID = req.cookies.user_id;
   // Find if user exists
-  const user = findUser(req.cookies.user_id, users);
+  const user = findUser(userID, users);
   //console.log(req.cookies);
   if (user) {
     res.render("urls_index", user);
   } else {
-    res.render("urls_register", req.cookies);
+    res.render("urls_register", { userDB: null });
   }
 });
 
