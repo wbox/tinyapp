@@ -41,7 +41,7 @@ const users = {
   '80e100': {
     id: '80e100',
     email: 'sribas@gmail.com',
-    password: '202cb962ac59075'
+    password: '$2b$10$2dA3e5.e3H51UTayA30qruiQrNw73lBfq474YfiTltNLPinfzWWVq'
   }
 };
 
@@ -106,6 +106,26 @@ function validateUser(email, password, userDB) {
   }
 };
 
+function getUserUrls(id, urlDatabase) {
+  const userUrlObj = {};
+
+  console.log("---> urlDatabase:",urlDatabase)
+
+  for (let url in urlDatabase) {
+    console.log("url in the loop:", url)
+    console.log("urlDatabase[url] in the loop:", urlDatabase[url]);
+    console.log("urlDatabase[url].userID in the loop:", urlDatabase[url].userID);
+    console.log("userDB.id in the loop:", id);
+
+    if ( urlDatabase[url].userID == id) {
+      console.log("--->", url);
+      
+      userUrlObj[url] =  urlDatabase[url];
+    }
+  }
+  console.log(userUrlObj);
+  return userUrlObj || null;
+}
 
 // POST Routing Entries
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -143,18 +163,15 @@ app.post("/login", (req, res) => {
   } else if (!passwordForm) {
     res.status(400).render("urls_error", { userDB: null, error: "You need to inform password!" });
   } else {
-
-
-    //const password = generateRandomString(passwordForm, PASSWORD_LENGTH);
     const { userFromDb, error } = validateUser(emailForm, passwordForm, users);
-
-    //console.log("userFromDb INSIDE login:", userFromDb);
-
     if(!userFromDb) {
       res.status(403).render("urls_error", { userDB: null, error });
     } else {
       res.cookie('user_id', userFromDb.id);
-      templateVars = { urlDB: urlDatabase, userDB: userFromDb };
+
+      // Add function that gets user specific urls
+      const userUrlObj = getUserUrls(userFromDb.id, urlDatabase);
+      templateVars = { urlDB: userUrlObj, userDB: userFromDb };
       res.render("urls_index", templateVars);
     }
   }
@@ -174,14 +191,13 @@ app.post("/register", (req, res) => {
     if (user) {
       res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
     } else {
+      // Make this code a function addNewUser
       password = bcrypt.hashSync(req.body.password, SALT_ROUND);
-      //password = generateRandomString(req.body.password, PASSWORD_LENGTH);
       users[id] = { id, email, password };
+      // ---
       res.cookie('user_id', id);
-      const templateVars = { urlDB: urlDatabase, userDB : users[id] };
-
-      console.log("New User in register:", users[id]);
-
+      const userUrlObj = getUserUrls(id,urlDatabase);
+      const templateVars = { urlDB: userUrlObj, userDB : users[id] };
       res.render("urls_index", templateVars);
     }
   }
@@ -197,8 +213,10 @@ app.get("/register", (req, res) => {
   // Find if user exists
   const { userDB, error } = findUserById(userID, users);
   if (userDB) {
-    const templateVars = { urlDB: urlDatabase, userDB };
+    const userUrlObj = getUserUrls(userDB.id, urlDatabase);
+    const templateVars = { urlDB: userUrlObj, userDB };
     res.render("urls_index", templateVars);
+    //redirect("/urls");
   } else {
     res.render("urls_register", { userDB: null });
   }
@@ -233,27 +251,16 @@ app.get("/urls", (req, res) => {
   } else {
     // Verify user exist based on the user_id cookie
     const { userDB, error } = findUserById(userID, users);
+    
     if (error) {
       templateVars = { userDB : null, error }
       res.render("urls_error", templateVars);
     } else {
 
-      const templateVars = { urlDB: urlDatabase, userDB };
+      //const templateVars = { urlDB: urlDatabase, userDB };
       if (userDB) {
-        // If user exist define templateVars with urlDB and user object
-        /// render urls_index passing templateVars
-
-        /// HERE implement function to build an object with the urls that belong to the user.
-        console.log("UserDB.id in urls:", userDB.id);
-        // const urlDB = Object.values(urlDatabase).forEach(element => {
-        //   if(element.userID === userDB.id) {
-        //     const urlUserDB['userDB.id'] = element;
-        //   }
-        //   return urlUserDB;
-        // });
-        //console.log("urlUserDB:",urlDB);
-
-        const templateVars = { urlDB: urlDatabase, userDB };
+        const userUrlObj = getUserUrls(userDB.id, urlDatabase);
+        const templateVars = { urlDB: userUrlObj, userDB };
         res.render('urls_index', templateVars);
       } else {
         res.redirect("/register");
