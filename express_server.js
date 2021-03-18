@@ -155,7 +155,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const { userDB, error } = findUserById(req.cookies.user_id, users);
+  const { userDB, error } = findUserById(req.session.user_id, users);
   if (userDB) {
 
     console.log("req.params inside edit:",req.params);
@@ -167,7 +167,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.cookies.user_id };
+  urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.session.user_id };
   res.redirect("/urls");
 });
 
