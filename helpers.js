@@ -11,24 +11,12 @@ const generateRandomString = (text, length) => {
 
 const findUserById = (id, users) => {
   const userDB = Object.values(users).find(userObject => userObject.id === id);
-  // return userDB ? { userDB, error: null } : { userDB: null, error: "User ID doesn't exist" };
-
-  if (userDB) {
-    return { userDB, error: null };
-  } else {
-    const userDB = null;
-    return { userDB, error: "User ID doesn't exist"};
-  }
+  return userDB ? { userDB, error: null } : { userDB: null, error: "User ID doesn't exist" };
 };
 
-const findUserByEmail = (email, userDB) => {
-  const user = Object.values(userDB).find((userObject) => userObject.email === email);
-  if (user) {
-    return { user, error: null };
-  } else {
-    const user = null;
-    return { user, error: "User email doesn't exist"};
-  }
+const findUserByEmail = (email, users) => {
+  const userDB = Object.values(users).find((userObject) => userObject.email === email);
+  return userDB ? { userDB, error: null } : { userDB: null, error: "User email doesn't exist" };
 };
 
 const getUserByEmail = (email, userDB) => {
