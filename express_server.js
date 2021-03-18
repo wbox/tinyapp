@@ -22,14 +22,17 @@ const users = {
   "userRandomID": {
     id: "userRandomID", 
     email: "user@example.com", 
-    password: "purple-monkey-dinosaur",
-    urls: []
+    password: "purple-monkey-dinosaur"
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk",
-    urls: []
+    password: "dishwasher-funk"
+  },
+  '80e100': {
+    id: '80e100',
+    email: 'sribas@gmail.com',
+    password: '202cb962ac59075'
   }
 };
 
@@ -39,14 +42,26 @@ function generateRandomString(text, length) {
   return randomString;
 };
 
-function findUserById(id, userDB) {
-  const user = Object.values(userDB).find(userObject => userObject.id === id);
-  if (user) {
-    return { user, error: null };
-  } else {
-    const user = null;
-    return { user, error: "User ID doesn't exist"}
-  }
+function findUserById(id, users) {
+  // if (!id) {
+  //   return { userDB: null, error: "findUserByID: id is empty"};
+  // } else {
+
+    //console.log("findUserById: id:", id);
+    //console.log("findUserById: userDB:", userDB);
+    
+    const userDB = Object.values(users).find(userObject => userObject.id === id);
+    console.log("findUserByID: user:", userDB);
+
+
+    if (userDB) {
+      console.log("finduserbyid: user before returning:", userDB);
+      return { userDB, error: null };
+    } else {
+      const user = null;
+      return { userDB, error: "User ID doesn't exist"}
+    }
+  // }
 };
 
 function findUserByEmail(email, userDB) {
@@ -94,9 +109,36 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username};
-  res.render("urls_show", templateVars);
+
+  console.log("user_id inside POST /urls/shor/edit:", req.cookies.user_id);
+
+  const { userDB, error } = findUserById(req.cookies.user_id, users);
+  console.log("userDB inside post edit:", userDB);
+
+  //const urlDB = Object.values(urlDatabase).find(urlOBJ => urlOBJ.shortURL === req.params.shortURL);
+  //console.log("urlDB inside edit:", urlDB);
+
+  if (userDB) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], userDB };
+    res.render("urls_show", templateVars);
+
+  //   if (urlDB) {
+  //     const templateVars = { urlDB, userDB };
+
+  //     console.log("templateVars inside post edit:", templateVars);
+
+  //     res.render("urls_show", templateVars);
+  //   }
+  // } else {
+  //   console.log("----> Can't find userDB inside app.post edit")
+  }
+
+
+
 });
+
+
+
 
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
@@ -104,6 +146,9 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
+
+  console.log("------- POST /urls -------");
+
   shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
   urlDatabase[shortURLKey] = req.body.longURL;
   res.redirect('/urls');
@@ -127,7 +172,6 @@ app.post("/login", (req, res) => {
 
     if(!userFromDb) {
       res.status(403).render("urls_error", { userDB: null, error });
-      //res.redirect("/register");
     } else {
       res.cookie('user_id', userFromDb.id);
       templateVars = { urlDB: urlDatabase, userDB: userFromDb };
@@ -151,36 +195,13 @@ app.post("/register", (req, res) => {
       res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
     } else {
       password = generateRandomString(req.body.password, PASSWORD_LENGTH);
-      users[id] = { id, email, password, urls: [] };
+      users[id] = { id, email, password };
       res.cookie('user_id', id);
-      res.redirect("/urls");
+      const templateVars = { urlDB: urlDatabase, userDB : users[id] };
+      res.render("urls_index", templateVars);
     }
   }
-
-  // user = findUser(id, users);
-  // email = req.body.email;
-
-  // check if email was informed
-  // if (!user) {
-  //   // Verify if user informed the email on the form
-  //   if (email) {
-  //     password = generateRandomString(req.body.password, PASSWORD_LENGTH);
-  //     users[id] = { id, email, password, urls: [] };
-  //     res.cookie('user_id', id);
-  //     res.redirect("/urls");
-  //   } else {
-  //     res.redirect("/register");
-  //   }
-  // } else {
-    
-  //   res.redirect("/urls");
-    // check if the user already exist
-    // if true 
-    // return message inform user already exist
-    // if false
-    // add new user to the databas 
-  // }
-})
+});
 
 app.get("/login", (req, res) => {
   res.render("urls_login", { userDB: null});
@@ -190,14 +211,10 @@ app.get("/register", (req, res) => {
 
   const userID = req.cookies.user_id;
   // Find if user exists
-  const { user, error } = findUserById(userID, users);
-  //console.log(req.cookies);
-
-  console.log("user from findUser INDISE /login:", user);
-
-
-  if (user) {
-    res.render("urls_index", user);
+  const { userDB, error } = findUserById(userID, users);
+  if (userDB) {
+    const templateVars = { urlDB: urlDatabase, userDB };
+    res.render("urls_index", templateVars);
   } else {
     res.render("urls_register", { userDB: null });
   }
@@ -212,13 +229,7 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  console.log("cookies at /", req.cookies);
-  user_id = req.cookies.user_id;
-  if (user_id) {
-    res.redirect('/urls');
-  } else {
-    res.render("urls_register");
-  }
+  res.redirect("/urls");
 });
 
 app.get("/urls.json", (req, res) => {
@@ -227,31 +238,62 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
 
-  // Verify user exist based on the user_id cookie
-  const user = findUserById(req.cookies.user_id, users);
+  console.log("---- STARTING /urls ----");
+  console.log("req.cookies inside /urls:", req.cookies);
+  // console.log("req.cookie inside /urls:", req.cookie);
+  // console.log("req.body inside /urls:", req.body);
+  const userID = req.cookies.user_id;
+  const { userDB, error } = findUserById(userID, users);
 
-  console.log("Result of findUser inside app.get(/urls):", user);
-  const templateVars = { urlDB: urlDatabase, userDB: user };
-  console.log("------>templateVars before urls_index.ejs:", templateVars);
-
-  // Verify if user exist
-  if (user) {
-    // If user exist define templateVars with urlDB and user object
-    /// render urls_index passing templateVars
-    res.render('urls_index', templateVars);
-  } else {
+  console.log("user_id inside /urls BEFORE if(!userID):", userID);
+  
+  if (!userID) {
     // if user doesn't exist send to regiters page
-    const templateVars = { urlDB: urlDatabase, userDB: null};
-    res.render("urls_index", templateVars);
-  }
+    //const templateVars = { userDB: null, error : null };
+    //res.render("urls_login", templateVars);
+    res.redirect("/login");
+  } else {
+    // Verify user exist based on the user_id cookie
+    //const { userDB, error } = findUserById(req.cookies.user_id, users);
+    console.log("user_id inside /urls before findUserByID:", userID);
+    const { userDB, error } = findUserById(userID, users);
+    console.log("userDB inside /urls after findUserById:", userDB);
+    console.log("error inside /urls after findUserById:", error);
+    //console.log("Result of findUser inside app.get(/urls):", user);
+    if (error) {
+      templateVars = { userDB : null, error }
+      res.render("urls_error", templateVars);
+    } else {
 
+      const templateVars = { urlDB: urlDatabase, userDB };
+      console.log("------>templateVars before urls_index.ejs:", templateVars);
+    //     }
+    //     Verify if user exist
+    // console.log("user_id inside /urls:", user_id);
+    console.log("userDB inside /urls BEFORE if(userDB):", userDB);
+      if (userDB) {
+        // If user exist define templateVars with urlDB and user object
+        /// render urls_index passing templateVars
+        const templateVars = { urlDB: urlDatabase, userDB };
+        res.render('urls_index', templateVars);
+        // res.redirect("/urls");
+      } else {
+        res.redirect("/register");
+      }
+    }
+  }
 });
 
 app.get("/urls/new", (req, res) => {
   userID = req.cookies.user_id;
-  const userDB = findUserById(userID, users);
-  templateVars = { userDB, error: null };
-  res.render("urls_new", templateVars);
+  if (!userID) {
+    templateVars = { userDB: null, error: "User not logged"}
+    res.render("urls_login", templateVars);
+  } else {
+    const userDB = findUserById(userID, users);
+    templateVars = { userDB, error: null };
+    res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls/:shortURL", (req, res) => {
