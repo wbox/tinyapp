@@ -14,9 +14,10 @@ const SHORTURL_LENGTH = 6;
 // My plan is to store this in a file when I get all functionalities
 // for this app implemented.
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "80e100" }
 };
+
 
 const users = { 
   "userRandomID": {
@@ -111,9 +112,6 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-
-  console.log("------- POST /urls -------");
-
   shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
   urlDatabase[shortURLKey] = req.body.longURL;
   res.redirect('/urls');
@@ -189,7 +187,7 @@ app.get("/u/:shortURL", (req, res) => {
   if (!urlDatabase[req.params.shortURL]) {
     res.redirect('/urls');
   } else {
-    res.redirect(urlDatabase[req.params.shortURL]);
+    res.redirect(urlDatabase[req.params.shortURL].longURL);
   }
 });
 
@@ -203,15 +201,9 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
 
-  // console.log("---- STARTING /urls ----");
-  // console.log("req.cookies inside /urls:", req.cookies);
-  // console.log("req.cookie inside /urls:", req.cookie);
-  // console.log("req.body inside /urls:", req.body);
   const userID = req.cookies.user_id;
   const { userDB, error } = findUserById(userID, users);
-
-  // console.log("user_id inside /urls BEFORE if(!userID):", userID);
-  
+ 
   if (!userID) {
     // if user doesn't exist send to regiters page
     //const templateVars = { userDB: null, error : null };
@@ -219,29 +211,18 @@ app.get("/urls", (req, res) => {
     res.redirect("/login");
   } else {
     // Verify user exist based on the user_id cookie
-    //const { userDB, error } = findUserById(req.cookies.user_id, users);
-    // console.log("user_id inside /urls before findUserByID:", userID);
     const { userDB, error } = findUserById(userID, users);
-    // console.log("userDB inside /urls after findUserById:", userDB);
-    // console.log("error inside /urls after findUserById:", error);
-    //console.log("Result of findUser inside app.get(/urls):", user);
     if (error) {
       templateVars = { userDB : null, error }
       res.render("urls_error", templateVars);
     } else {
 
       const templateVars = { urlDB: urlDatabase, userDB };
-      // console.log("------>templateVars before urls_index.ejs:", templateVars);
-    //     }
-    //     Verify if user exist
-    // console.log("user_id inside /urls:", user_id);
-    // console.log("userDB inside /urls BEFORE if(userDB):", userDB);
       if (userDB) {
         // If user exist define templateVars with urlDB and user object
         /// render urls_index passing templateVars
         const templateVars = { urlDB: urlDatabase, userDB };
         res.render('urls_index', templateVars);
-        // res.redirect("/urls");
       } else {
         res.redirect("/register");
       }
