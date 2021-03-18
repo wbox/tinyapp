@@ -8,13 +8,8 @@
       <div class="navbar-nav">
          
           <% if (userDB === null) { %> 
-          <!--- <a class="nav-item nav-link"></a>
-          <form method="POST" action="/login">
-            Username: <input type="email" placeholder="user@email.com" name="email" style="width: 200px">
-            Password: <input type="password" name="password" style="width: 200px"><button class="btn btn-primary">Login</button>
-          </form> --->
           <a class="nav-item nav-link" href="/login">Login</a>
-          <a class="nav-item nav-link" href="/register">Create a new Account</a>
+          <a class="nav-item nav-link" href="/register">Register</a>
           <% } else { %>
             <a class="nav-item nav-link" href="/urls">My URLs</a>
             <a class="nav-item nav-link" href="/urls/new">Create New URL</a>

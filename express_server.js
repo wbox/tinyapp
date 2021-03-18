@@ -111,7 +111,8 @@ app.post("/login", (req, res) => {
     console.log("userFromDb INSIDE login:", userFromDb);
 
     if(!userFromDb) {
-      res.redirect("/register");
+      res.status(403).render("urls_error", { userDB: null, error });
+      //res.redirect("/register");
     } else {
       res.cookie('user_id', userFromDb.id);
       templateVars = { urlDB: urlDatabase, userDB: userFromDb };
