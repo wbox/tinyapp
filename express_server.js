@@ -2,20 +2,28 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const md5 = require('md5');
 const ejs = require('ejs');
+const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
+const cookieSession = require('cookie-session');
 const app = express();
+
+app.set('view engine', 'ejs');
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser());
+//app.use(cookieSession)
 
 const PORT = 8080; // default port 8080
 const PASSWORD_LENGTH = 15;
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
+const SALT_ROUND      = 10;
 
 
 // My plan is to store this in a file when I get all functionalities
 // for this app implemented.
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "80e100" }
+  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
 };
 
 
@@ -55,14 +63,18 @@ function findUserById(id, users) {
 };
 
 function findUserByEmail(email, userDB) {
-  const user = Object.values(userDB).find(userObject => userObject.email === email);
+  const user = Object.values(userDB).find((userObject) => userObject.email === email);
   if (user) {
     return { user, error: null };
   } else {
     const user = null;
     return { user, error: "User email doesn't exist"}
   }
-}
+};
+
+function addNewUser(email, password, userDB) {
+  // const hash = bcrypt.hashSync(myPlaintextPassword, saltRounds);
+};
 
 function validateUser(email, password, userDB) {
   userObj = null;
@@ -78,19 +90,22 @@ function validateUser(email, password, userDB) {
   
   if (!userFromDb) {
     return { userObj , error: "User not found" };
-  }
+  } else { 
   
-  if (userFromDb.email !== email) {
-    return { userObj, error: "email not found!" };
-  } else if (userFromDb.password !== password) {
-    return { userObj, error: "wrong password" }; 
+    const hash = userFromDb.password;
+    
+    console.log("hash inside validateUser Function:", hash);
+    console.log("compareSync:", bcrypt.compareSync(password, hash));
+
+    if (userFromDb.email !== email) {
+      return { userObj, error: "email not found!" };
+    } else if (!bcrypt.compareSync(password, hash)) /* userFromDb.password !== password) */{
+      return { userObj, error: "wrong password" }; 
+    } 
+    return { userFromDb, error: null };
   }
-  return { userFromDb, error: null };
 };
 
-app.set('view engine', 'ejs');
-app.use(bodyParser.urlencoded({extended: true}));
-app.use(cookieParser());
 
 // POST Routing Entries
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -113,7 +128,8 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
   shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
-  urlDatabase[shortURLKey] = req.body.longURL;
+  urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.cookies.user_id };
+  console.log(urlDatabase);
   res.redirect('/urls');
 });
 
@@ -128,8 +144,9 @@ app.post("/login", (req, res) => {
     res.status(400).render("urls_error", { userDB: null, error: "You need to inform password!" });
   } else {
 
-    const password = generateRandomString(passwordForm, PASSWORD_LENGTH);
-    const { userFromDb, error } = validateUser(emailForm, password, users);
+
+    //const password = generateRandomString(passwordForm, PASSWORD_LENGTH);
+    const { userFromDb, error } = validateUser(emailForm, passwordForm, users);
 
     //console.log("userFromDb INSIDE login:", userFromDb);
 
@@ -157,10 +174,14 @@ app.post("/register", (req, res) => {
     if (user) {
       res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
     } else {
-      password = generateRandomString(req.body.password, PASSWORD_LENGTH);
+      password = bcrypt.hashSync(req.body.password, SALT_ROUND);
+      //password = generateRandomString(req.body.password, PASSWORD_LENGTH);
       users[id] = { id, email, password };
       res.cookie('user_id', id);
       const templateVars = { urlDB: urlDatabase, userDB : users[id] };
+
+      console.log("New User in register:", users[id]);
+
       res.render("urls_index", templateVars);
     }
   }
@@ -221,6 +242,17 @@ app.get("/urls", (req, res) => {
       if (userDB) {
         // If user exist define templateVars with urlDB and user object
         /// render urls_index passing templateVars
+
+        /// HERE implement function to build an object with the urls that belong to the user.
+        console.log("UserDB.id in urls:", userDB.id);
+        // const urlDB = Object.values(urlDatabase).forEach(element => {
+        //   if(element.userID === userDB.id) {
+        //     const urlUserDB['userDB.id'] = element;
+        //   }
+        //   return urlUserDB;
+        // });
+        //console.log("urlUserDB:",urlDB);
+
         const templateVars = { urlDB: urlDatabase, userDB };
         res.render('urls_index', templateVars);
       } else {
