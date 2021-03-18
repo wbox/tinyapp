@@ -39,10 +39,25 @@ function generateRandomString(text, length) {
   return randomString;
 };
 
-function findUser(id, userDB) {
+function findUserById(id, userDB) {
   const user = Object.values(userDB).find(userObject => userObject.id === id);
-  return user;
+  if (user) {
+    return { user, error: null };
+  } else {
+    const user = null;
+    return { user, error: "User ID doesn't exist"}
+  }
 };
+
+function findUserByEmail(email, userDB) {
+  const user = Object.values(userDB).find(userObject => userObject.email === email);
+  if (user) {
+    return { user, error: null };
+  } else {
+    const user = null;
+    return { user, error: "User email doesn't exist"}
+  }
+}
 
 function validateUser(email, password, userDB) {
   userObj = null;
@@ -128,29 +143,43 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
   const id = generateRandomString(req.body.email,USERID_LENGTH);
-  user = findUser(id, users);
   email = req.body.email;
-
-  // check if email was informed
-  if (!user) {
-    // Verify if user informed the email on the form
-    if (email) {
+  
+  if (email) {
+    const { user, error } = findUserByEmail(email, users);
+    if (user) {
+      res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
+    } else {
       password = generateRandomString(req.body.password, PASSWORD_LENGTH);
       users[id] = { id, email, password, urls: [] };
       res.cookie('user_id', id);
       res.redirect("/urls");
-    } else {
-      res.redirect("/register");
     }
-  } else {
+  }
+
+  // user = findUser(id, users);
+  // email = req.body.email;
+
+  // check if email was informed
+  // if (!user) {
+  //   // Verify if user informed the email on the form
+  //   if (email) {
+  //     password = generateRandomString(req.body.password, PASSWORD_LENGTH);
+  //     users[id] = { id, email, password, urls: [] };
+  //     res.cookie('user_id', id);
+  //     res.redirect("/urls");
+  //   } else {
+  //     res.redirect("/register");
+  //   }
+  // } else {
     
-    res.redirect("/urls");
+  //   res.redirect("/urls");
     // check if the user already exist
     // if true 
     // return message inform user already exist
     // if false
     // add new user to the databas 
-  }
+  // }
 })
 
 app.get("/login", (req, res) => {
@@ -161,8 +190,12 @@ app.get("/register", (req, res) => {
 
   const userID = req.cookies.user_id;
   // Find if user exists
-  const user = findUser(userID, users);
+  const { user, error } = findUserById(userID, users);
   //console.log(req.cookies);
+
+  console.log("user from findUser INDISE /login:", user);
+
+
   if (user) {
     res.render("urls_index", user);
   } else {
@@ -195,7 +228,7 @@ app.get("/urls.json", (req, res) => {
 app.get("/urls", (req, res) => {
 
   // Verify user exist based on the user_id cookie
-  const user = findUser(req.cookies.user_id, users);
+  const user = findUserById(req.cookies.user_id, users);
 
   console.log("Result of findUser inside app.get(/urls):", user);
   const templateVars = { urlDB: urlDatabase, userDB: user };
@@ -215,7 +248,9 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  templateVars = { username: req.cookies.username };
+  userID = req.cookies.user_id;
+  const userDB = findUserById(userID, users);
+  templateVars = { userDB, error: null };
   res.render("urls_new", templateVars);
 });
 
