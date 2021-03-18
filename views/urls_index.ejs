@@ -9,6 +9,7 @@
   <title>TinyApp</title>
 </head>
 <%- include('partials/_header') %>
+<% if (userDB) { %>
 <body>
   <main style="margin: 1em;">
     <h3>My URLs</h3>
@@ -21,12 +22,12 @@
           <th scope="col">Delete</th>
         </tr>
       </thead>
-      <% if (username) { %>
+  
       <tbody>
-        <% for(let url in urls) { %>
+        <% for(let url in urlDB) { %>
           <tr>
             <td><%= url %></td>
-            <td><%= urls[url] %></td>
+            <td><%= urlDB[url] %></td>
             <td><form method="POST" action="/urls/<%= url %>/edit"><button class="btn btn-primary">Edit</button></form></td>
             <td><form method="POST" action="/urls/<%= url %>/delete"><button class="btn btn-danger">Delete</button></form></td>
           </tr>
