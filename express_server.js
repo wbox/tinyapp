@@ -64,8 +64,16 @@ const users = {
 
 // POST Routing Entries
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
-  res.redirect('/urls');
+  
+  const userID = req.session.user_id;
+  const { userDB, error } = findUserById(userID, users);
+  
+  if (userDB && urlDatabase[req.params.shortURL].userID === userID ) {
+    delete urlDatabase[req.params.shortURL];
+    res.redirect("/urls");
+  } else {
+    res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
+  }
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
@@ -79,18 +87,11 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 app.post("/urls/:id", (req, res) => {
   const userID = req.session.user_id;
 
-  console.log("params:",req.params.id);
-  console.log("body:",req.body);
-
   const { userDB, error } = findUserById(userID, users);
-  console.log("userID inside post /urls/:id:", userID, userDB);
-  console.log("--->",urlDatabase[req.params.id]);
 
   if (userDB && urlDatabase[req.params.id].userID === userID ) {
     urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.session.user_id };
     res.redirect("/urls");
-    // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
-    // res.render("urls_show", templateVars);
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
   }
