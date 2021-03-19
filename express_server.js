@@ -77,14 +77,31 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.session.user_id };
-  res.redirect("/urls");
+  const userID = req.session.user_id;
+
+  console.log("params:",req.params.id);
+  console.log("body:",req.body);
+
+  const { userDB, error } = findUserById(userID, users);
+  console.log("userID inside post /urls/:id:", userID, userDB);
+  console.log("--->",urlDatabase[req.params.id]);
+
+  if (userDB && urlDatabase[req.params.id].userID === userID ) {
+    urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.session.user_id };
+    res.redirect("/urls");
+    // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
+    // res.render("urls_show", templateVars);
+  } else {
+    res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
+  }
+
+
 });
 
 app.post("/urls", (req, res) => {
   shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
   urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.session.user_id };
-  res.redirect('/urls');
+  res.redirect(`/urls/${shortURLKey}`);
 });
 
 // Refactor to get users with valid account access to the system and then test the exceptions
