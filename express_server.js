@@ -100,9 +100,17 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.post("/urls", (req, res) => {
-  shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
-  urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.session.user_id };
-  res.redirect(`/urls/${shortURLKey}`);
+
+  userID = req.session.user_id;
+
+  if (userID) {
+    shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
+    urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.session.user_id };
+    res.redirect(`/urls/${shortURLKey}`);
+  } else {
+    res.render("urls_error", { userDB: null, error: "Access Denied! You must be logged in for this operation."});
+  }
+
 });
 
 // Refactor to get users with valid account access to the system and then test the exceptions
@@ -239,26 +247,6 @@ app.get("/urls/:shortURL", (req, res) => {
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
   }
-  // const userID = req.session.user_id;
-  // console.log("userID , urluserID:", userID, urlDatabase[req.params.shortURL].userID);
-  // // const urlOBJ = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
-  // if (userID && urlDatabase[req.params.shortURL].userID === userID) {
-  //   const userDB = findUserById(userID, users);
-  //   const url = urlDatabase[req.params.shortURL];
-
-  //   console.log("userDB inside /urls/:shortURL", userDB)
-
-  //   templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
-
-  //   console.log("templateVars inside /urls/:shortURL:", templateVars);
-  //   res.render("urls_show", templateVars);
-
-  // }
-
-  // console.log("req.params:",req.params);
-  // console.log("urlDatabase[req.params.shortURL].longURL", urlDatabase[req.params.shortURL].longURL);
-  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-
 });
 
 app.listen(PORT, () => {
