@@ -24,7 +24,7 @@ const getUserByEmail = (email, userDB) => {
   return user ? user.id : null;
 };
 
-const  addNewUser = (id, email, password, users) => {
+const addNewUser = (id, email, password, users) => {
   password = bcrypt.hashSync(password, SALT_ROUND);
   users[id] = { id, email, password };
   const userDB = users[id];
@@ -33,28 +33,31 @@ const  addNewUser = (id, email, password, users) => {
 
 const validateUser = (email, password, users) => {
   
-  userDB = null;
-  if (!email) {
-    return { userDB , error: "email empty" };
-  } else if (!password) {
-    return { userDB, error: "password empty" };
-  } else if (!users) {
-    return { userDB, error: "database empty"};
-  }
+  if (email && password && users) {
 
-  userDB = Object.values(users).find(objectUser => objectUser.email === email);
-
-  if (userDB) {
-    const hash = userDB.password;
+    userDB = Object.values(users).find(objectUser => objectUser.email === email);
     
-    if (userDB.email !== email) {
-      return { userDB, error: "email not found!" };
-    } else if (!bcrypt.compareSync(password, hash)) {
-      return { userDB, error: "wrong password" };
+    if (userDB) {
+      const hash = userDB.password;
+      
+      if (userDB.email !== email) {
+        return { userDB, error: "email not found!" };
+      } else if (!bcrypt.compareSync(password, hash)) {
+        return { userDB, error: "wrong password" };
+      }
+      return { userDB, error: null };
+    } else {
+      return { userDB , error: "User not found" };
     }
-    return { userDB, error: null };
-  } else {
-    return { userDB , error: "User not found" };
+
+    userDB = null;
+    if (!email) {
+      return { userDB , error: "email empty" };
+    } else if (!password) {
+      return { userDB, error: "password empty" };
+    } else if (!users) {
+      return { userDB, error: "database empty"};
+    }
   }
 };
 

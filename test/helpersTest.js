@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail, findUserById, findUserByEmail, addNewUser } = require('../helpers.js');
+const { getUserByEmail, findUserById, findUserByEmail, addNewUser, validateUser } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -12,6 +12,11 @@ const testUsers = {
     id: "user2RandomID", 
     email: "user2@example.com", 
     password: "dishwasher-funk"
+  },
+  '80e100': {
+    id: '80e100',
+    email: 'sribas@gmail.com',
+    password: '$2b$10$2dA3e5.e3H51UTayA30qruiQrNw73lBfq474YfiTltNLPinfzWWVq'
   }
 };
 
@@ -70,13 +75,6 @@ describe('findUserByEmail', () => {
     
 });
 
-// const addNewUser = (id, email, password, users) => {
-//   password = bcrypt.hashSync(password, SALT_ROUND);
-//   users[id] = { id, email, password };
-//   const userDB = users[id];
-//   return { userDB , error: null };
-// };
-
 describe('addNewUser', () => {
   
   it('should return an object of the new user', () => {
@@ -87,6 +85,58 @@ describe('addNewUser', () => {
     assert.deepEqual(user, expectedOutput);
   });
     
+});
+
+// const validateUser = (email, password, users) => {
+  
+//   if (email && password && users) {
+
+//     userDB = Object.values(users).find(objectUser => objectUser.email === email);
+    
+//     if (userDB) {
+//       const hash = userDB.password;
+      
+//       if (userDB.email !== email) {
+//         return { userDB, error: "email not found!" };
+//       } else if (!bcrypt.compareSync(password, hash)) {
+//         return { userDB, error: "wrong password" };
+//       }
+//       return { userDB, error: null };
+//     } else {
+//       return { userDB , error: "User not found" };
+//     }
+
+//     userDB = null;
+//     if (!email) {
+//       return { userDB , error: "email empty" };
+//     } else if (!password) {
+//       return { userDB, error: "password empty" };
+//     } else if (!users) {
+//       return { userDB, error: "database empty"};
+//     }
+//   }
+// };
+
+describe('validateUser', () => {
+  
+  it('should return an object of the user if email and password are correct', () => {
+    const user = validateUser("sribas@gmail.com", "123", testUsers);
+    //const userDB = { id: "34erd9", email: "xxxx@example.com", password: testUsers["34erd9"].password };
+    const userDB = testUsers['80e100'];
+    const expectedOutput = { userDB, error: null };
+    assert.deepEqual(user, expectedOutput);
+  });
+
+  // it('should return a null object and an error message if password is incorrect', () => {
+  //   const user = validateUser("sribas@gmail.com", "123hjhjh4", testUsers);
+  //   //const userDB = { id: "34erd9", email: "xxxx@example.com", password: testUsers["34erd9"].password };
+  //   const userDB = null
+  //   const expectedOutput = { userDB, error: 'wrong password' };
+  //   assert.deepEqual(user, expectedOutput);
+  // });
+  
+
+
 });
 
 

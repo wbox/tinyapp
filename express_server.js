@@ -87,6 +87,7 @@ app.post("/urls", (req, res) => {
   res.redirect('/urls');
 });
 
+// Refactor to get users with valid account access to the system and then test the exceptions
 app.post("/login", (req, res) => {
 
   const emailForm    = req.body.email;
@@ -155,10 +156,10 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  if (!urlDatabase[req.params.shortURL]) {
-    res.redirect('/urls');
-  } else {
+  if (urlDatabase[req.params.shortURL]) {
     res.redirect(urlDatabase[req.params.shortURL].longURL);
+  } else {
+    res.redirect('/urls');
   }
 });
 
