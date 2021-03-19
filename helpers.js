@@ -35,28 +35,33 @@ const validateUser = (email, password, users) => {
   
   if (email && password && users) {
 
-    userDB = Object.values(users).find(objectUser => objectUser.email === email);
+    const userDB = Object.values(users).find(objectUser => objectUser.email === email);
     
     if (userDB) {
       const hash = userDB.password;
+
+      console.log("password:", password);
+      console.log("hash:", hash);
+      console.log("bcrypt:", bcrypt.compareSync(password, hash))
       
       if (userDB.email !== email) {
-        return { userDB, error: "email not found!" };
-      } else if (!bcrypt.compareSync(password, hash)) {
-        return { userDB, error: "wrong password" };
+        return { userDB: null, error: "email not found!" };
+      } 
+      
+      if (!bcrypt.compareSync(password, hash)) {
+        return { userDB: null, error: "wrong password" };
       }
       return { userDB, error: null };
     } else {
       return { userDB , error: "User not found" };
     }
 
-    userDB = null;
     if (!email) {
-      return { userDB , error: "email empty" };
+      return { userDB: null , error: "email empty" };
     } else if (!password) {
-      return { userDB, error: "password empty" };
+      return { userDB: null, error: "password empty" };
     } else if (!users) {
-      return { userDB, error: "database empty"};
+      return { userDB: null, error: "database empty"};
     }
   }
 };

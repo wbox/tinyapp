@@ -31,14 +31,9 @@ const setCurrentUser = (req, res, next) => {
 app.use(setCurrentUser);
 
 const PORT = 8080; // default port 8080
-//const PASSWORD_LENGTH = 15;
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
-//const SALT_ROUND      = 10;
 
-
-// My plan is to store this in a file when I get all functionalities
-// for this app implemented.
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
@@ -68,7 +63,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   const userID = req.session.user_id;
   const { userDB, error } = findUserById(userID, users);
   
-  if (userDB && urlDatabase[req.params.shortURL].userID === userID ) {
+  if (userDB && urlDatabase[req.params.shortURL].userID === userID) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
   } else {
@@ -89,7 +84,7 @@ app.post("/urls/:id", (req, res) => {
 
   const { userDB, error } = findUserById(userID, users);
 
-  if (userDB && urlDatabase[req.params.id].userID === userID ) {
+  if (userDB && urlDatabase[req.params.id].userID === userID) {
     urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.session.user_id };
     res.redirect("/urls");
   } else {
@@ -101,10 +96,11 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
 
-  userID = req.session.user_id;
+  const userID = req.session.user_id;
+  const urlDatabase = {};
 
   if (userID) {
-    shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
+    const shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
     urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.session.user_id };
     res.redirect(`/urls/${shortURLKey}`);
   } else {
@@ -113,7 +109,6 @@ app.post("/urls", (req, res) => {
 
 });
 
-// Refactor to get users with valid account access to the system and then test the exceptions
 app.post("/login", (req, res) => {
 
   const emailForm    = req.body.email;
@@ -130,7 +125,7 @@ app.post("/login", (req, res) => {
     } else {
       req.session['user_id'] = userDB.id;
       const userUrlObj = getUserUrls(userDB.id, urlDatabase);
-      templateVars = { urlDB: userUrlObj, userDB };
+      const templateVars = { urlDB: userUrlObj, userDB };
       res.render("urls_index", templateVars);
     }
   }
@@ -144,8 +139,8 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
 
   const id = generateRandomString(req.body.email,USERID_LENGTH);
-  email = req.body.email;
-  password = req.body.password;
+  const email = req.body.email;
+  const password = req.body.password;
   
   if (email) {
     const { userDB, error } = findUserByEmail(email, users);
@@ -209,7 +204,7 @@ app.get("/urls", (req, res) => {
     const { userDB, error } = findUserById(userID, users);
     
     if (error) {
-      templateVars = { userDB : null, error };
+      const templateVars = { userDB : null, error };
       res.render("urls_error", templateVars);
     } else {
 
@@ -226,13 +221,13 @@ app.get("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  userSessionID = req.session.user_id;
+  const userSessionID = req.session.user_id;
   if (!userSessionID) {
-    templateVars = { userDB: null, error: "User not logged"};
+    const templateVars = { userDB: null, error: "User not logged"};
     res.render("urls_login", templateVars);
   } else {
     const { userDB, error } = findUserById(userSessionID, users);
-    templateVars = { userDB, error: null };
+    const templateVars = { userDB, error: null };
     res.render("urls_new", templateVars);
   }
 });
