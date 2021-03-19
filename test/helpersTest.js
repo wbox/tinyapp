@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 
-const { getUserByEmail, findUserById, findUserByEmail, addNewUser, validateUser } = require('../helpers.js');
+const { getUserByEmail, findUserById, findUserByEmail, addNewUser, validateUser, getUserUrls } = require('../helpers.js');
 
 const testUsers = {
   "userRandomID": {
@@ -20,6 +20,10 @@ const testUsers = {
   }
 };
 
+const testUrlDatabase = {
+  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
+  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
+};
 
 describe('getUserByEmail', function() {
   
@@ -139,6 +143,35 @@ describe('validateUser', () => {
 
 });
 
+// const getUserUrls = (id, urlDatabase) => {
+//   const userUrlObj = {};
+//   for (let url in urlDatabase) {
+//     if (urlDatabase[url].userID === id) {
+//       userUrlObj[url] =  urlDatabase[url];
+//     }
+//   }
+//   return userUrlObj || null;
+// };
 
+describe('getUserUrls', () => {
+  
+  it('should return an object with the URLs associated to the user account', () => {
+    const urls = getUserUrls('80e100', testUrlDatabase);
+    //const urlDB = testUrlDatabase['b6UTxQ'];
+    const expectedOutput = { b6UTxQ: { longURL: 'https://www.tsn.ca', userID: '80e100' } };
+    assert.deepEqual(urls, expectedOutput);
+  });
+
+  // it('should return a null object and an error message if password is incorrect', () => {
+  //   const user = validateUser("sribas@gmail.com", "123hjhjh4", testUsers);
+  //   //const userDB = { id: "34erd9", email: "xxxx@example.com", password: testUsers["34erd9"].password };
+  //   const userDB = null
+  //   const expectedOutput = { userDB, error: 'wrong password' };
+  //   assert.deepEqual(user, expectedOutput);
+  // });
+  
+
+
+});
 
 // console.log(getUserByEmail("bla@example.com", testUsers));
