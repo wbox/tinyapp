@@ -212,8 +212,35 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
-  res.render("urls_show", templateVars);
+
+  const userID = req.session.user_id;
+  const { userDB, error } = findUserById(req.session.user_id, users);
+  if (userDB && userID && urlDatabase[req.params.shortURL].userID === userID) {
+    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
+    res.render("urls_show", templateVars);
+  } else {
+    res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
+  }
+  // const userID = req.session.user_id;
+  // console.log("userID , urluserID:", userID, urlDatabase[req.params.shortURL].userID);
+  // // const urlOBJ = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] }
+  // if (userID && urlDatabase[req.params.shortURL].userID === userID) {
+  //   const userDB = findUserById(userID, users);
+  //   const url = urlDatabase[req.params.shortURL];
+
+  //   console.log("userDB inside /urls/:shortURL", userDB)
+
+  //   templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL };
+
+  //   console.log("templateVars inside /urls/:shortURL:", templateVars);
+  //   res.render("urls_show", templateVars);
+
+  // }
+
+  // console.log("req.params:",req.params);
+  // console.log("urlDatabase[req.params.shortURL].longURL", urlDatabase[req.params.shortURL].longURL);
+  // const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+
 });
 
 app.listen(PORT, () => {
