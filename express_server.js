@@ -153,6 +153,8 @@ app.post("/register", (req, res) => {
       const templateVars = { urlDB: userUrlObj, userDB : users[id] };
       res.render("urls_index", templateVars);
     }
+  } else {
+    res.render("urls_error", { userDB: null, error: "You need to inform your email for registration"} );
   }
 });
 
