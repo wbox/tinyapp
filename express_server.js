@@ -142,7 +142,7 @@ app.post("/register", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   
-  if (email) {
+  if (email && password) {
     const { userDB, error } = findUserByEmail(email, users);
     if (userDB) {
       res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
@@ -154,7 +154,7 @@ app.post("/register", (req, res) => {
       res.render("urls_index", templateVars);
     }
   } else {
-    res.render("urls_error", { userDB: null, error: "You need to inform your email for registration"} );
+    res.render("urls_error", { userDB: null, error: "You need to inform your email and passwordfor registration"} );
   }
 });
 
