@@ -133,7 +133,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session['user_id'] = null;
-  res.render("urls_index", { urlDB: null, userDB: null});
+  res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
