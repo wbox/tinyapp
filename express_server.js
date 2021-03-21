@@ -16,7 +16,8 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use(
   cookieSession({
     name: 'session',
-    keys: ['key1', 'key2']
+    keys: ['key1', 'key2'],
+    maxAge: 1 * 60 * 60 * 1000 // 1 hour
   })
 );
 
@@ -97,11 +98,14 @@ app.post("/urls/:id", (req, res) => {
 app.post("/urls", (req, res) => {
 
   const userID = req.session.user_id;
-  const urlDatabase = {};
+  const longURL = req.body.longURL;
+
+  //const urlDatabase = {};
 
   if (userID) {
-    const shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
-    urlDatabase[shortURLKey] = { longURL: req.body.longURL, userID: req.session.user_id };
+    // const shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
+    const shortURLKey = generateRandomString(longURL, SHORTURL_LENGTH);
+    urlDatabase[shortURLKey] = { longURL: longURL, userID: userID };
     res.redirect(`/urls/${shortURLKey}`);
   } else {
     res.render("urls_error", { userDB: null, error: "Access Denied! You must be logged in for this operation."});
@@ -124,6 +128,7 @@ app.post("/login", (req, res) => {
       res.status(403).render("urls_error", { userDB: null, error });
     } else {
       req.session['user_id'] = userDB.id;
+
       const userUrlObj = getUserUrls(userDB.id, urlDatabase);
       const templateVars = { urlDB: userUrlObj, userDB };
       res.render("urls_index", templateVars);
@@ -133,7 +138,7 @@ app.post("/login", (req, res) => {
 
 app.post("/logout", (req, res) => {
   req.session['user_id'] = null;
-  res.render("urls_index", { urlDB: null, userDB: null});
+  res.redirect("/urls");
 });
 
 app.post("/register", (req, res) => {
@@ -236,11 +241,21 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
 
-  const userID = req.session.user_id;
-  const { userDB, error } = findUserById(req.session.user_id, users);
-  if (userDB && userID && urlDatabase[req.params.shortURL].userID === userID) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
+  const userID    = req.session.user_id;
+  const shortURL  = req.params.shortURL;
+  const longURL   = urlDatabase[shortURL].longURL;
+  const { userDB, error } = findUserById(userID, users);
+   
+  console.log("userID inside app.get(/urls/:shortURL:". userID);
+  console.log("req.params.shortURL", req.params.shortURL);
+  console.log("urlDatabase[req.params.shortURL].userID:", urlDatabase[shortURL].userID);
+
+
+  if (userDB && userID && urlDatabase[shortURL].userID === userID) {
+    const templateVars = { shortURL: shortURL, longURL: longURL, userDB };
     res.render("urls_show", templateVars);
+    //res.render("urls_index", templateVars);
+    // res.redirect(`/urls/${req.params.shortURL}`);
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
   }
