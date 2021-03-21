@@ -2,8 +2,6 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const md5 = require('md5');
-//const bcrypt = require('bcrypt');
-//const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
 const { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls } = require('./helpers');
 
@@ -11,13 +9,12 @@ const app = express();
 
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser());
 
 app.use(
   cookieSession({
     name: 'session',
     keys: ['key1', 'key2'],
-    maxAge: 1 * 60 * 60 * 1000 // 1 hour
+    maxAge: 1 * 60 * 60 * 1000 // cookies will expire within 1 hour
   })
 );
 
@@ -100,10 +97,7 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   const longURL = req.body.longURL;
 
-  //const urlDatabase = {};
-
   if (userID) {
-    // const shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
     const shortURLKey = generateRandomString(longURL, SHORTURL_LENGTH);
     urlDatabase[shortURLKey] = { longURL: longURL, userID: userID };
     res.redirect(`/urls/${shortURLKey}`);
@@ -171,13 +165,11 @@ app.get("/login", (req, res) => {
 app.get("/register", (req, res) => {
 
   const userSessionID = req.session.user_id;
-  // Find if user exists
   const { userDB, error } = findUserById(userSessionID, users);
   if (userDB) {
     const userUrlObj = getUserUrls(userDB.id, urlDatabase);
     const templateVars = { urlDB: userUrlObj, userDB };
     res.render("urls_index", templateVars);
-    //redirect("/urls");
   } else {
     res.render("urls_register", { userDB: null });
   }
@@ -245,17 +237,10 @@ app.get("/urls/:shortURL", (req, res) => {
   const shortURL  = req.params.shortURL;
   const longURL   = urlDatabase[shortURL].longURL;
   const { userDB, error } = findUserById(userID, users);
-   
-  console.log("userID inside app.get(/urls/:shortURL:". userID);
-  console.log("req.params.shortURL", req.params.shortURL);
-  console.log("urlDatabase[req.params.shortURL].userID:", urlDatabase[shortURL].userID);
-
 
   if (userDB && userID && urlDatabase[shortURL].userID === userID) {
     const templateVars = { shortURL: shortURL, longURL: longURL, userDB };
     res.render("urls_show", templateVars);
-    //res.render("urls_index", templateVars);
-    // res.redirect(`/urls/${req.params.shortURL}`);
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
   }

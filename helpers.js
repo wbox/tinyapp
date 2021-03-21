@@ -40,10 +40,6 @@ const validateUser = (email, password, users) => {
     if (userDB) {
       const hash = userDB.password;
 
-      console.log("password:", password);
-      console.log("hash:", hash);
-      console.log("bcrypt:", bcrypt.compareSync(password, hash))
-      
       if (userDB.email !== email) {
         return { userDB: null, error: "email not found!" };
       } 
