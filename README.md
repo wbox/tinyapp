@@ -14,12 +14,12 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 - [Node.js](https://nodejs.org/en/)
 - [Express](https://expressjs.com/)
-- ![EJS](https://ejs.co/)
-- ![bcrypt](https://www.npmjs.com/package/bcrypt)
-- ![body-parser](https://www.npmjs.com/package/body-parser)
-- ![cookie-session](https://expressjs.com/en/resources/middleware/cookie-session.html)
-- ![mocha](https://mochajs.org/)
-- ![chai](https://www.chaijs.com/)
+- [EJS](https://ejs.co/)
+- [bcrypt](https://www.npmjs.com/package/bcrypt)
+- [body-parser](https://www.npmjs.com/package/body-parser)
+- [cookie-session](https://expressjs.com/en/resources/middleware/cookie-session.html)
+- [mocha](https://mochajs.org/)
+- [chai](https://www.chaijs.com/)
 
 ## Getting Started
 
