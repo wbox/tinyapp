@@ -3,6 +3,12 @@ const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const md5 = require('md5');
 const cookieSession = require('cookie-session');
+
+// Database files
+const { urlDatabase } = require('./data/url-database');
+const { users } = require('./data/user-database');
+
+// Helper functions
 const { generateRandomString, 
         findUserByEmail, 
         findUserById, 
@@ -10,7 +16,6 @@ const { generateRandomString,
         validateUser, 
         getUserUrls } = require('./helpers');
 
-const { urlDatabase } = require('./data/url-database');
 
 const app = express();
 app.set('view engine', 'ejs');
@@ -28,26 +33,6 @@ const PORT = 8080; // default port 8080
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
 
-//import * as urlDatabase from "data/url-database.js";
-
-// User Database
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  },
-  '80e100': {
-    id: '80e100',
-    email: 'sribas@gmail.com',
-    password: '$2b$10$2dA3e5.e3H51UTayA30qruiQrNw73lBfq474YfiTltNLPinfzWWVq'
-  }
-};
 
 // POST Routing Entries. See the documentation for more information about the rules for each routing entry.
 app.post("/urls/:shortURL/delete", (req, res) => {
