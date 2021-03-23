@@ -35,16 +35,6 @@ TinyApp is a full stack web application built with Node and Express that allows 
 #### Update a URL
 - Click on *My URLS* and on the *Edit* button. A form with the URL information will load and you can update the information there and then click on the *Update* button.
 
-
-
-## Important notes about the requirements
-
-- After user logs out:
-  - Its cookies must be deleted and,
-  - it must beredirected to the /urls
-
-This implementions redirect any request to /urls without cookies/user credentials to the login page.
-
 ## Final Product
 
 ### Login Page
@@ -55,5 +45,17 @@ This implementions redirect any request to /urls without cookies/user credential
 !["Screenshot of Register page"](https://github.com/wbox/tinyapp/blob/master/docs/register-page.png)
 ### Create new URL page
 !["screenshot of Creating a new TinyURL"](https://github.com/wbox/tinyapp/blob/master/docs/create-new-tinyurl.png)
+
+## Application Requirements (REST)
+
+To find the full description of the App requirements, please click [here](https://github.com/wbox/tinyapp/blob/master/docs/system-requirements.md)
+
+## Important notes about the requirements
+
+- After user logs out:
+  - Its cookies must be deleted and,
+  - it must beredirected to the /urls
+
+This implementions redirect any request to /urls without cookies/user credentials to the login page.
 
 
