@@ -160,7 +160,7 @@ app.get("/register", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
 
-  const shortURLKey = req.params.shortURL;
+  const shortURL = req.params.shortURL;
 
   if (urlDatabase[shortURL]) {
     res.redirect(urlDatabase[shortURL].longURL);
