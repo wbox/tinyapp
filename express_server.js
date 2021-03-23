@@ -51,11 +51,13 @@ const users = {
 // POST Routing Entries
 app.post("/urls/:shortURL/delete", (req, res) => {
   
-  const userID = req.session.user_id;
+  const userID   = req.session.user_id;
+  const shortURL = req.params.shortURL;
+
   const { userDB, error } = findUserById(userID, users);
   
-  if (userDB && urlDatabase[req.params.shortURL].userID === userID) {
-    delete urlDatabase[req.params.shortURL];
+  if (userDB && urlDatabase[shortURL].userID === userID) {
+    delete urlDatabase[shortURL];
     res.redirect("/urls");
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
