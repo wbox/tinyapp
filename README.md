@@ -12,6 +12,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - [cookie-session](https://expressjs.com/en/resources/middleware/cookie-session.html)
 - [mocha](https://mochajs.org/)
 - [chai](https://www.chaijs.com/)
+- [bootstrap css](https://getbootstrap.com/docs/3.4/css/) (See head.ejs, urls_index.ejs files)
 
 ## Getting Started
 
