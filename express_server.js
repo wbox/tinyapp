@@ -10,6 +10,8 @@ const { generateRandomString,
         validateUser, 
         getUserUrls } = require('./helpers');
 
+const { urlDatabase } = require('./data/url-database');
+
 const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -26,11 +28,7 @@ const PORT = 8080; // default port 8080
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
 
-// URL Database
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
-};
+//import * as urlDatabase from "data/url-database.js";
 
 // User Database
 const users = {
