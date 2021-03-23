@@ -63,9 +63,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const { userDB, error } = findUserById(req.session.user_id, users);
+  const userID   = req.session.user_id;
+  const shortURL = req.params.shortURL;
+
+  const { userDB, error } = findUserById(userID, users);
   if (userDB) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
+    const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, userDB };
     res.render("urls_show", templateVars);
   }
 });
