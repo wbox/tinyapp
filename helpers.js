@@ -1,6 +1,10 @@
-const md5         = require('md5');
-const bcrypt      = require('bcrypt');
-const SALT_ROUND  = 10;
+const { urlDatabase } = require('./data/url-database');
+const { users } = require('./data/user-database');
+
+const md5             = require('md5');
+const bcrypt          = require('bcrypt');
+const SALT_ROUND      = 10;
+const SHORTURL_LENGTH = 6;
 
 /// Helper Functions
 
@@ -11,6 +15,21 @@ const generateRandomString = (text, length) => {
   const randomString = md5(text).slice(0,length);
   return randomString;
 };
+
+// Function to add new URL. longURL and userID are used to generate
+// new key using md5.
+const addNewURL = (longURL, userID) => {
+
+  const text = longURL+userID;
+  console.log("text:", text);
+
+  const shortURLKey = generateRandomString(text, SHORTURL_LENGTH).toString();
+  console.log("shortURLKey:", shortURLKey);
+
+  urlDatabase[shortURLKey] = { longURL: longURL, userID: userID };
+  return shortURLKey;
+};
+
 // This function find an user based on id and return the user object
 // This app has a heavy dependency on this function. It will require a
 // complete refactor to migrate to getUserByEmail function only.
@@ -84,4 +103,4 @@ const getUserUrls = (id, urlDatabase) => {
   return userUrlObj || null;
 };
 
-module.exports = { generateRandomString, findUserById, addNewUser, validateUser, getUserUrls, getUserByEmail };
+module.exports = { generateRandomString, addNewURL, findUserById, addNewUser, validateUser, getUserUrls, getUserByEmail };

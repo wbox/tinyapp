@@ -9,7 +9,8 @@ const { urlDatabase } = require('./data/url-database');
 const { users }       = require('./data/user-database');
 
 // Helper functions
-const { generateRandomString, 
+const { generateRandomString,
+        addNewURL,
         findUserById, 
         addNewUser, 
         validateUser, 
@@ -30,7 +31,7 @@ app.use(
 // Global variables
 const PORT            = 8080; // default port 8080
 const USERID_LENGTH   = 6;
-const SHORTURL_LENGTH = 6;
+
 
 
 // POST Routing Entries. See the documentation for more information about the rules for each routing entry.
@@ -84,9 +85,13 @@ app.post("/urls", (req, res) => {
   const longURL = req.body.longURL;
 
   if (userID) {
-    const shortURLKey = generateRandomString(longURL, SHORTURL_LENGTH);
-    urlDatabase[shortURLKey] = { longURL: longURL, userID: userID };
-    res.redirect(`/urls/${shortURLKey}`);
+
+    const shortURL = addNewURL(longURL, userID);
+    if (shortURL) {
+      res.redirect(`/urls/${shortURL}`);
+    } else {
+      res.render("urls_error", { userDB: null, error});
+    }
   } else {
     res.render("urls_error", { userDB: null, error: "Access Denied! You must be logged in for this operation."});
   }
