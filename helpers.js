@@ -19,13 +19,8 @@ const generateRandomString = (text, length) => {
 // Function to add new URL. longURL and userID are used to generate
 // new key using md5.
 const addNewURL = (longURL, userID) => {
-
   const text = longURL+userID;
-  console.log("text:", text);
-
   const shortURLKey = generateRandomString(text, SHORTURL_LENGTH).toString();
-  console.log("shortURLKey:", shortURLKey);
-
   urlDatabase[shortURLKey] = { longURL: longURL, userID: userID };
   return shortURLKey;
 };
