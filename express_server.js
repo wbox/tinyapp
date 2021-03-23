@@ -68,6 +68,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
+  
   const userID   = req.session.user_id;
   const shortURL = req.params.shortURL;
 
@@ -79,17 +80,19 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:id", (req, res) => {
-  const userID = req.session.user_id;
+
+  const userID   = req.session.user_id;
+  const shortURL = req.params.id;
+  const longURL  = req.body.longURL;
 
   const { userDB, error } = findUserById(userID, users);
 
-  if (userDB && urlDatabase[req.params.id].userID === userID) {
-    urlDatabase[req.params.id] = { longURL: req.body.longURL, userID: req.session.user_id };
+  if (userDB && urlDatabase[shortURL].userID === userID) {
+    urlDatabase[shortURL] = { longURL: longURL, userID: userID };
     res.redirect("/urls");
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
   }
-
 
 });
 
@@ -138,9 +141,9 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  const id        = generateRandomString(req.body.email,USERID_LENGTH);
-  const email     = req.body.email;
-  const password  = req.body.password;
+  const { email, password } = req.body;
+  const id = generateRandomString(email,USERID_LENGTH);
+
   
   if (email && password) {
     const { userDB, error } = findUserByEmail(email, users);
@@ -176,8 +179,11 @@ app.get("/register", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-  if (urlDatabase[req.params.shortURL]) {
-    res.redirect(urlDatabase[req.params.shortURL].longURL);
+
+  const shortURLKey = req.params.shortURL;
+
+  if (urlDatabase[shortURL]) {
+    res.redirect(urlDatabase[shortURL].longURL);
   } else {
     res.redirect('/urls');
   }
