@@ -3,13 +3,16 @@ const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const md5 = require('md5');
 const cookieSession = require('cookie-session');
-const { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls } = require('./helpers');
+const { generateRandomString, 
+        findUserByEmail, 
+        findUserById, 
+        addNewUser, 
+        validateUser, 
+        getUserUrls } = require('./helpers');
 
 const app = express();
-
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-
 app.use(
   cookieSession({
     name: 'session',
@@ -17,16 +20,6 @@ app.use(
     maxAge: 1 * 60 * 60 * 1000 // cookies will expire within 1 hour
   })
 );
-
-// Middleware functions
-const setCurrentUser = (req, res, next) => {
-  const userID = req.session['user_id'];
-  const userObj = users[userID] || null;
-  req.currentUser = userObj;
-  next();
-};
-
-app.use(setCurrentUser);
 
 const PORT = 8080; // default port 8080
 const USERID_LENGTH   = 6;
@@ -163,7 +156,6 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-
   const userSessionID = req.session.user_id;
   const { userDB, error } = findUserById(userSessionID, users);
   if (userDB) {
@@ -233,7 +225,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
 
-  const userID    = req.session.user_id;
+  const userID    = req.session.user_id; 
   const shortURL  = req.params.shortURL;
   const longURL   = urlDatabase[shortURL].longURL;
   const { userDB, error } = findUserById(userID, users);

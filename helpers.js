@@ -3,6 +3,9 @@ const bcrypt      = require('bcrypt');
 const SALT_ROUND  = 10;
 
 /// Helper Functions
+
+// Function to generate random string using md5. 
+// If length is not provided the default is 6
 const generateRandomString = (text, length) => {
   length = !length ? 6 : length;
   const randomString = md5(text).slice(0,length);
@@ -39,11 +42,9 @@ const validateUser = (email, password, users) => {
     
     if (userDB) {
       const hash = userDB.password;
-
       if (userDB.email !== email) {
         return { userDB: null, error: "email not found!" };
-      } 
-      
+      }       
       if (!bcrypt.compareSync(password, hash)) {
         return { userDB: null, error: "wrong password" };
       }
