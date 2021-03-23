@@ -21,8 +21,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `npm start` command.
 - Open your browser and point to http://localhost:8080
-- If you ran into any problems, please open an issue on the repo
-
+- If you ran into any problems, please open an issue [here](https://github.com/wbox/tinyapp/issues)
 ### How to use the app
 #### Add a new user
 - Click on *Register* at the top of the page to create a new user by providing your email and password. The system doesn't accept duplicate emails in the database.
