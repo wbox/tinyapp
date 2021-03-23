@@ -21,15 +21,18 @@ app.use(
   })
 );
 
+// Global variables
 const PORT = 8080; // default port 8080
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
 
+// URL Database
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
 };
 
+// User Database
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -48,7 +51,7 @@ const users = {
   }
 };
 
-// POST Routing Entries
+// POST Routing Entries. See the documentation for more information about the rules for each routing entry.
 app.post("/urls/:shortURL/delete", (req, res) => {
   
   const userID   = req.session.user_id;
@@ -135,9 +138,9 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  const id = generateRandomString(req.body.email,USERID_LENGTH);
-  const email = req.body.email;
-  const password = req.body.password;
+  const id        = generateRandomString(req.body.email,USERID_LENGTH);
+  const email     = req.body.email;
+  const password  = req.body.password;
   
   if (email && password) {
     const { userDB, error } = findUserByEmail(email, users);
@@ -155,7 +158,7 @@ app.post("/register", (req, res) => {
   }
 });
 
-// GET Routing Entries
+// GET Routing Entries. See the documentation for more information about the rules for each routing entry.
 app.get("/login", (req, res) => {
   res.render("urls_login", { userDB: null});
 });
