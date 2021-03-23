@@ -1,15 +1,21 @@
-const express = require("express");
-const bodyParser = require('body-parser');
-const ejs = require('ejs');
-const md5 = require('md5');
+const express       = require("express");
+const bodyParser    = require('body-parser');
+const ejs           = require('ejs');
+const md5           = require('md5');
 const cookieSession = require('cookie-session');
+
+// Database files
+const { urlDatabase } = require('./data/url-database');
+const { users }       = require('./data/user-database');
+
+// Helper functions
 const { generateRandomString, 
-        findUserByEmail, 
         findUserById, 
         addNewUser, 
         validateUser, 
         getUserUrls } = require('./helpers');
 
+// Express configuration
 const app = express();
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
@@ -22,34 +28,10 @@ app.use(
 );
 
 // Global variables
-const PORT = 8080; // default port 8080
+const PORT            = 8080; // default port 8080
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
 
-// URL Database
-const urlDatabase = {
-  b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
-  i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
-};
-
-// User Database
-const users = {
-  "userRandomID": {
-    id: "userRandomID",
-    email: "user@example.com",
-    password: "purple-monkey-dinosaur"
-  },
-  "user2RandomID": {
-    id: "user2RandomID",
-    email: "user2@example.com",
-    password: "dishwasher-funk"
-  },
-  '80e100': {
-    id: '80e100',
-    email: 'sribas@gmail.com',
-    password: '$2b$10$2dA3e5.e3H51UTayA30qruiQrNw73lBfq474YfiTltNLPinfzWWVq'
-  }
-};
 
 // POST Routing Entries. See the documentation for more information about the rules for each routing entry.
 app.post("/urls/:shortURL/delete", (req, res) => {
@@ -98,7 +80,7 @@ app.post("/urls/:id", (req, res) => {
 
 app.post("/urls", (req, res) => {
 
-  const userID = req.session.user_id;
+  const userID  = req.session.user_id;
   const longURL = req.body.longURL;
 
   if (userID) {
@@ -125,10 +107,9 @@ app.post("/login", (req, res) => {
     if (!userDB) {
       res.status(403).render("urls_error", { userDB: null, error });
     } else {
-      req.session['user_id'] = userDB.id;
-
-      const userUrlObj = getUserUrls(userDB.id, urlDatabase);
-      const templateVars = { urlDB: userUrlObj, userDB };
+      req.session['user_id']  = userDB.id;
+      const userUrlObj        = getUserUrls(userDB.id, urlDatabase);
+      const templateVars      = { urlDB: userUrlObj, userDB };
       res.render("urls_index", templateVars);
     }
   }
@@ -142,22 +123,21 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
 
   const { email, password } = req.body;
-  const id = generateRandomString(email,USERID_LENGTH);
+  const id                  = generateRandomString(email,USERID_LENGTH);
 
   
   if (email && password) {
-    const { userDB, error } = findUserByEmail(email, users);
+    const { userDB, error } = addNewUser(id, email, password, users);
     if (userDB) {
-      res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
-    } else {
-      const { userDB, error } = addNewUser(id, email, password, users);
       req.session['user_id'] = id;
       const userUrlObj = getUserUrls(id,urlDatabase);
       const templateVars = { urlDB: userUrlObj, userDB : users[id] };
       res.render("urls_index", templateVars);
+    } else {
+      res.render("urls_error", { userDB: null, error: `User ${email} already registered` });
     }
   } else {
-    res.render("urls_error", { userDB: null, error: "You need to inform your email and passwordfor registration"} );
+    res.render("urls_error", { userDB: null, error: "You need to inform your email and password for registration"} );
   }
 });
 
@@ -199,7 +179,7 @@ app.get("/urls.json", (req, res) => {
 
 app.get("/urls", (req, res) => {
 
-  const userID = req.session.user_id;
+  const userID            = req.session.user_id;
   const { userDB, error } = findUserById(userID, users);
  
   if (!userID) {
@@ -215,8 +195,8 @@ app.get("/urls", (req, res) => {
 
       //const templateVars = { urlDB: urlDatabase, userDB };
       if (userDB) {
-        const userUrlObj = getUserUrls(userDB.id, urlDatabase);
-        const templateVars = { urlDB: userUrlObj, userDB };
+        const userUrlObj    = getUserUrls(userDB.id, urlDatabase);
+        const templateVars  = { urlDB: userUrlObj, userDB };
         res.render('urls_index', templateVars);
       } else {
         res.redirect("/register");

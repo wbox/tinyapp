@@ -12,15 +12,11 @@ const generateRandomString = (text, length) => {
   return randomString;
 };
 // This function find an user based on id and return the user object
+// This app has a heavy dependency on this function. It will require a
+// complete refactor to migrate to getUserByEmail function only.
 const findUserById = (id, users) => {
   const userDB = Object.values(users).find(userObject => userObject.id === id);
   return userDB ? { userDB, error: null } : { userDB: null, error: "User ID doesn't exist" };
-};
-
-// This function find an user based on email and return the user object
-const findUserByEmail = (email, users) => {
-  const userDB = Object.values(users).find((userObject) => userObject.email === email);
-  return userDB ? { userDB, error: null } : { userDB: null, error: "User email doesn't exist" };
 };
 
 // This function find an user based on an email address and return the user_id only.
@@ -31,10 +27,17 @@ const getUserByEmail = (email, userDB) => {
 
 // Add a new user to the database. All parameters are mandatory
 const addNewUser = (id, email, password, users) => {
-  password = bcrypt.hashSync(password, SALT_ROUND);
-  users[id] = { id, email, password };
-  const userDB = users[id];
-  return { userDB , error: null };
+
+  const userID = getUserByEmail(email, users);
+
+  if (!userID) {
+    password = bcrypt.hashSync(password, SALT_ROUND);
+    users[id] = { id, email, password };
+    const userDB = users[id];
+    return { userDB , error: null };
+  } else {
+    return { userDB: null, error: `User ${email} already registered` };
+  }
 };
 
 
@@ -81,4 +84,4 @@ const getUserUrls = (id, urlDatabase) => {
   return userUrlObj || null;
 };
 
-module.exports = { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls, getUserByEmail };
+module.exports = { generateRandomString, findUserById, addNewUser, validateUser, getUserUrls, getUserByEmail };
