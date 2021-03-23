@@ -48,7 +48,7 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 ## Application Requirements (REST)
 
-To find the full description of the App requirements, please click [here](https://github.com/wbox/tinyapp/blob/master/docs/system-requirements.md)
+To find the full description of the App requirements, please click [here](https://github.com/wbox/tinyapp/blob/master/system-requirements.md)
 
 ## Important notes about the requirements
 
