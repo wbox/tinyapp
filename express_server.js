@@ -2,44 +2,37 @@ const express = require("express");
 const bodyParser = require('body-parser');
 const ejs = require('ejs');
 const md5 = require('md5');
-//const bcrypt = require('bcrypt');
-//const cookieParser = require('cookie-parser');
 const cookieSession = require('cookie-session');
-const { generateRandomString, findUserByEmail, findUserById, addNewUser, validateUser, getUserUrls } = require('./helpers');
+const { generateRandomString, 
+        findUserByEmail, 
+        findUserById, 
+        addNewUser, 
+        validateUser, 
+        getUserUrls } = require('./helpers');
 
 const app = express();
-
 app.set('view engine', 'ejs');
 app.use(bodyParser.urlencoded({extended: true}));
-// app.use(cookieParser());
-
 app.use(
   cookieSession({
     name: 'session',
     keys: ['key1', 'key2'],
-    maxAge: 1 * 60 * 60 * 1000 // 1 hour
+    maxAge: 1 * 60 * 60 * 1000 // cookies will expire within 1 hour
   })
 );
 
-// Middleware functions
-const setCurrentUser = (req, res, next) => {
-  const userID = req.session['user_id'];
-  const userObj = users[userID] || null;
-  req.currentUser = userObj;
-  next();
-};
-
-app.use(setCurrentUser);
-
+// Global variables
 const PORT = 8080; // default port 8080
 const USERID_LENGTH   = 6;
 const SHORTURL_LENGTH = 6;
 
+// URL Database
 const urlDatabase = {
   b6UTxQ: { longURL: "https://www.tsn.ca", userID: "80e100" },
   i3BoGr: { longURL: "https://www.google.ca", userID: "userRandomID" }
 };
 
+// User Database
 const users = {
   "userRandomID": {
     id: "userRandomID",
@@ -58,14 +51,16 @@ const users = {
   }
 };
 
-// POST Routing Entries
+// POST Routing Entries. See the documentation for more information about the rules for each routing entry.
 app.post("/urls/:shortURL/delete", (req, res) => {
   
-  const userID = req.session.user_id;
+  const userID   = req.session.user_id;
+  const shortURL = req.params.shortURL;
+
   const { userDB, error } = findUserById(userID, users);
   
-  if (userDB && urlDatabase[req.params.shortURL].userID === userID) {
-    delete urlDatabase[req.params.shortURL];
+  if (userDB && urlDatabase[shortURL].userID === userID) {
+    delete urlDatabase[shortURL];
     res.redirect("/urls");
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
@@ -73,9 +68,12 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  const { userDB, error } = findUserById(req.session.user_id, users);
+  const userID   = req.session.user_id;
+  const shortURL = req.params.shortURL;
+
+  const { userDB, error } = findUserById(userID, users);
   if (userDB) {
-    const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL, userDB };
+    const templateVars = { shortURL: shortURL, longURL: urlDatabase[shortURL].longURL, userDB };
     res.render("urls_show", templateVars);
   }
 });
@@ -100,10 +98,7 @@ app.post("/urls", (req, res) => {
   const userID = req.session.user_id;
   const longURL = req.body.longURL;
 
-  //const urlDatabase = {};
-
   if (userID) {
-    // const shortURLKey = generateRandomString(req.body.longURL, SHORTURL_LENGTH);
     const shortURLKey = generateRandomString(longURL, SHORTURL_LENGTH);
     urlDatabase[shortURLKey] = { longURL: longURL, userID: userID };
     res.redirect(`/urls/${shortURLKey}`);
@@ -143,9 +138,9 @@ app.post("/logout", (req, res) => {
 
 app.post("/register", (req, res) => {
 
-  const id = generateRandomString(req.body.email,USERID_LENGTH);
-  const email = req.body.email;
-  const password = req.body.password;
+  const id        = generateRandomString(req.body.email,USERID_LENGTH);
+  const email     = req.body.email;
+  const password  = req.body.password;
   
   if (email && password) {
     const { userDB, error } = findUserByEmail(email, users);
@@ -163,21 +158,18 @@ app.post("/register", (req, res) => {
   }
 });
 
-// GET Routing Entries
+// GET Routing Entries. See the documentation for more information about the rules for each routing entry.
 app.get("/login", (req, res) => {
   res.render("urls_login", { userDB: null});
 });
 
 app.get("/register", (req, res) => {
-
   const userSessionID = req.session.user_id;
-  // Find if user exists
   const { userDB, error } = findUserById(userSessionID, users);
   if (userDB) {
     const userUrlObj = getUserUrls(userDB.id, urlDatabase);
     const templateVars = { urlDB: userUrlObj, userDB };
     res.render("urls_index", templateVars);
-    //redirect("/urls");
   } else {
     res.render("urls_register", { userDB: null });
   }
@@ -241,21 +233,14 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
 
-  const userID    = req.session.user_id;
+  const userID    = req.session.user_id; 
   const shortURL  = req.params.shortURL;
   const longURL   = urlDatabase[shortURL].longURL;
   const { userDB, error } = findUserById(userID, users);
-   
-  console.log("userID inside app.get(/urls/:shortURL:". userID);
-  console.log("req.params.shortURL", req.params.shortURL);
-  console.log("urlDatabase[req.params.shortURL].userID:", urlDatabase[shortURL].userID);
-
 
   if (userDB && userID && urlDatabase[shortURL].userID === userID) {
     const templateVars = { shortURL: shortURL, longURL: longURL, userDB };
     res.render("urls_show", templateVars);
-    //res.render("urls_index", templateVars);
-    // res.redirect(`/urls/${req.params.shortURL}`);
   } else {
     res.status(403).render("urls_error", { userDB, error : "Access Denied!" });
   }
