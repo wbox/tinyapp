@@ -59,24 +59,6 @@ describe('findUserById', () => {
     
 });
 
-// describe('findUserByEmail', () => {
-  
-//   it('should return an object of the user', () => {
-//     const user = findUserByEmail("user2@example.com", testUsers);
-//     const userDB = { id: "user2RandomID", email: "user2@example.com", password: "dishwasher-funk" } 
-//     const expectedOutput = { userDB, error: null };
-//     assert.deepEqual(user,expectedOutput);
-//   });
-  
-//   it('should return null if not existing user', () => {
-//     const user = findUserById("bla@example.com", testUsers);
-//     const userDB = null;
-//     const expectedOutput = { userDB, error: "User ID doesn't exist" };
-//     assert.deepEqual(user,expectedOutput);
-//   });
-    
-// });
-
 describe('addNewUser', () => {
   
   it('should return an object of the new user', () => {
