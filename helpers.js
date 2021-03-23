@@ -12,6 +12,8 @@ const generateRandomString = (text, length) => {
   return randomString;
 };
 // This function find an user based on id and return the user object
+// This app has a heavy dependency on this function. It will require a
+// complete refactor to migrate to getUserByEmail function only.
 const findUserById = (id, users) => {
   const userDB = Object.values(users).find(userObject => userObject.id === id);
   return userDB ? { userDB, error: null } : { userDB: null, error: "User ID doesn't exist" };
